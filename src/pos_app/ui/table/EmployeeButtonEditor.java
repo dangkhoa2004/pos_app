@@ -9,6 +9,7 @@ import java.awt.*;
 public class EmployeeButtonEditor extends AbstractCellEditor implements TableCellEditor {
 
     public static class BtnRenderer extends JPanel implements TableCellRenderer {
+
         private final JButton edit = new JButton("Sửa");
         private final JButton del = new JButton("Xóa");
 
@@ -32,7 +33,9 @@ public class EmployeeButtonEditor extends AbstractCellEditor implements TableCel
         }
     }
 
-    enum Click { NONE, EDIT, DELETE }
+    enum Click {
+        NONE, EDIT, DELETE
+    }
 
     private Click click = Click.NONE;
     private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
@@ -86,10 +89,17 @@ public class EmployeeButtonEditor extends AbstractCellEditor implements TableCel
         String email = (String) model.getValueAt(row, 5);
 
         switch (click) {
-            case EDIT -> showForm.accept(new Employee(id, name, username, "", role, phone, email));
+            case EDIT ->
+                showForm.accept(new Employee(id, name, username, "", role, phone, email));
             case DELETE -> {
-                int ok = JOptionPane.showConfirmDialog(null, "Xóa nhân viên này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-                if (ok == JOptionPane.YES_OPTION) {
+                int confirm = JOptionPane.showConfirmDialog(
+                        null,
+                        "Bạn có chắc chắn muốn xóa nhân viên \"" + name + "\"?",
+                        "Xác nhận xóa",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+                if (confirm == JOptionPane.YES_OPTION) {
                     dao.deleteEmployee(id);
                     reload.run();
                 }
@@ -98,4 +108,3 @@ public class EmployeeButtonEditor extends AbstractCellEditor implements TableCel
         return "";
     }
 }
-

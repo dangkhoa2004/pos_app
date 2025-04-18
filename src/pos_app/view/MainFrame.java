@@ -30,8 +30,11 @@ public class MainFrame extends JFrame {
 
         // Cài đặt cơ bản frame
         setTitle("📊 POS - Quản lý bán hàng");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Tạm tắt dòng này để thử thu nhỏ
+        setBounds(100, 100, 1200, 800); // Kích thước mặc định dễ test
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
         setLayout(new BorderLayout());
         getContentPane().setBackground(Color.WHITE); // Nền trắng đẹp
 

@@ -16,6 +16,7 @@ import javax.swing.*;
 import pos_app.ui.panel.CustomerPanel;
 import pos_app.ui.panel.EmployeePanel;
 import pos_app.ui.panel.InvoicePanel;
+import pos_app.ui.panel.POSPanel;
 import pos_app.ui.panel.ProductPanel;
 import pos_app.ui.panel.StockPanel;
 import pos_app.util.IconUtil;
@@ -43,6 +44,7 @@ public class SideBarMenu extends JPanel {
         add(Box.createRigidArea(new Dimension(0, 30)));
 
         // -------- MENU ITEMS --------
+        addMenu("Bán Hàng", IconUtil.loadSvg("ad_product.svg", 20), new POSPanel(), onMenuClick);
         addMenu("Quản lý sản phẩm", IconUtil.loadSvg("ad_product.svg", 20), new ProductPanel(), onMenuClick);
         addMenu("Khách hàng", IconUtil.loadSvg("customer_service_agent.svg", 20), new CustomerPanel(), onMenuClick);
         addMenu("Hóa đơn", IconUtil.loadSvg("alternate_file.svg", 20), new InvoicePanel(), onMenuClick);

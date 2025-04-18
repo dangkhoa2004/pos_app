@@ -1,6 +1,5 @@
 package pos_app.ui.table;
 
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -10,7 +9,9 @@ import pos_app.ui.dialog.CustomerFormDialog;
 
 public class CustomerButtonEditor extends AbstractCellEditor implements javax.swing.table.TableCellEditor {
 
-    enum Click { NONE, EDIT, DELETE }
+    enum Click {
+        NONE, EDIT, DELETE
+    }
 
     private Click click = Click.NONE;
     private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
@@ -60,7 +61,7 @@ public class CustomerButtonEditor extends AbstractCellEditor implements javax.sw
         String name = (String) model.getValueAt(row, 1);
         String phone = (String) model.getValueAt(row, 2);
         String email = (String) model.getValueAt(row, 3);
-        String address = ""; // Bạn có thể thêm cột Address vào table nếu cần
+        String address = ""; // nếu cần, có thể bổ sung
 
         switch (click) {
             case EDIT -> {
@@ -75,13 +76,20 @@ public class CustomerButtonEditor extends AbstractCellEditor implements javax.sw
             }
             case DELETE -> {
                 int ok = JOptionPane.showConfirmDialog(
-                        null, "Xóa khách hàng này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+                        null,
+                        "Bạn có chắc chắn muốn xóa khách hàng: \"" + name + "\"?",
+                        "Xác nhận xóa",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
                 if (ok == JOptionPane.YES_OPTION) {
                     dao.deleteCustomer(id);
                     reload.run();
+                    JOptionPane.showMessageDialog(null, "Đã xóa khách hàng \"" + name + "\" thành công.");
                 }
             }
         }
         return "";
     }
+
 }

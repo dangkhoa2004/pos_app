@@ -21,36 +21,33 @@ public class EmployeePanel extends JPanel {
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JPanel control = new JPanel(new GridLayout(1, 3, 10, 0));
-        control.setBorder(BorderFactory.createTitledBorder("Thuộc tính nhân viên"));
-
-        String[] attrBtns = {
-            "Quản lý chức vụ", "Quản lý phòng ban", "Quản lý ca làm"
-        };
-        for (String txt : attrBtns) {
-            JButton b = new RoundedButton(txt, 10);
-            b.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            b.setPreferredSize(new Dimension(0, 32));
-            control.add(b);
+        // Control Panel (Attribute buttons)
+        JPanel controlPanel = new JPanel(new GridLayout(1, 3, 10, 0));
+        controlPanel.setBorder(BorderFactory.createTitledBorder("Thuộc tính nhân viên"));
+        String[] btnNames = {"Quản lý chức vụ", "Quản lý phòng ban", "Quản lý ca làm"};
+        for (String name : btnNames) {
+            JButton btn = new RoundedButton(name, 10);
+            btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
+            btn.setPreferredSize(new Dimension(0, 32));
+            controlPanel.add(btn);
         }
 
-        JPanel wrapper = new JPanel(new GridBagLayout());
+        JPanel inputWrapper = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(0, 0, 0, 20);
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.weightx = .3;
-        wrapper.add(control, gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 0.3;
+        inputWrapper.add(controlPanel, gbc);
 
-        model = new DefaultTableModel(
-                new String[]{"ID", "Tên", "Username", "Role", "SĐT", "Email", "Hành động"}, 0) {
+        // Table setup
+        model = new DefaultTableModel(new String[]{"ID", "Tên", "Username", "Role", "SĐT", "Email", "Hành động"}, 0) {
             @Override
-            public boolean isCellEditable(int r, int c) {
-                return c == 6;
+            public boolean isCellEditable(int row, int column) {
+                return column == 6;
             }
         };
-
         table = new JTable(model);
         table.setRowHeight(28);
         styleTable(table);
@@ -58,6 +55,7 @@ public class EmployeePanel extends JPanel {
         table.getColumn("Hành động").setCellEditor(
                 new EmployeeButtonEditor(model, dao, this::loadTable, this::showForm));
 
+        // Search bar and actions
         RoundedTextField tfSearch = new RoundedTextField(20, 15);
         JButton btnSearch = new RoundedButton("Tìm", 15);
         JButton btnAdd = new RoundedButton("Thêm mới", 15);
@@ -65,41 +63,42 @@ public class EmployeePanel extends JPanel {
         btnSearch.addActionListener(e -> doSearch(tfSearch.getText().trim()));
         btnAdd.addActionListener(e -> showForm(null));
 
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createTitledBorder("Danh sách nhân viên"));
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        leftPanel.add(btnAdd);
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        rightPanel.add(new JLabel("Tìm kiếm:"));
+        rightPanel.add(tfSearch);
+        rightPanel.add(btnSearch);
 
-        JPanel searchBar = new JPanel(new BorderLayout());
-        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-        left.add(btnAdd);
-        right.add(new JLabel("Tìm kiếm:"));
-        right.add(tfSearch);
-        right.add(btnSearch);
-        searchBar.add(left, BorderLayout.WEST);
-        searchBar.add(right, BorderLayout.EAST);
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.add(leftPanel, BorderLayout.WEST);
+        searchPanel.add(rightPanel, BorderLayout.EAST);
 
-        JPanel tableWrap = new JPanel(new BorderLayout());
-        tableWrap.add(searchBar, BorderLayout.NORTH);
-        tableWrap.add(scroll, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Danh sách nhân viên"));
 
-        add(wrapper, BorderLayout.NORTH);
-        add(tableWrap, BorderLayout.CENTER);
+        JPanel tableWrapper = new JPanel(new BorderLayout());
+        tableWrapper.add(searchPanel, BorderLayout.NORTH);
+        tableWrapper.add(scrollPane, BorderLayout.CENTER);
 
+        add(inputWrapper, BorderLayout.NORTH);
+        add(tableWrapper, BorderLayout.CENTER);
         loadTable();
     }
 
-    private void styleTable(JTable t) {
-        JTableHeader hd = t.getTableHeader();
-        hd.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        hd.setBackground(new Color(230, 230, 230));
-        hd.setPreferredSize(new Dimension(100, 35));
-        t.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    private void styleTable(JTable table) {
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        header.setBackground(new Color(230, 230, 230));
+        header.setPreferredSize(new Dimension(100, 35));
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
-        DefaultTableCellRenderer ctr = new DefaultTableCellRenderer();
-        ctr.setHorizontalAlignment(JLabel.CENTER);
-        ctr.setVerticalAlignment(JLabel.CENTER);
-        for (int i = 0; i < t.getColumnCount(); i++) {
-            t.getColumnModel().getColumn(i).setCellRenderer(ctr);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        centerRenderer.setVerticalAlignment(JLabel.CENTER);
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
     }
 
@@ -134,10 +133,11 @@ public class EmployeePanel extends JPanel {
                 existing == null ? "Thêm nhân viên" : "Sửa nhân viên", existing);
         dlg.setVisible(true);
         if (dlg.isSubmitted()) {
+            Employee emp = dlg.getEmployeeData();
             if (existing == null) {
-                dao.insertEmployee(dlg.getEmployeeData(0));
+                dao.insertEmployee(emp);
             } else {
-                dao.updateEmployee(dlg.getEmployeeData(existing.getId()));
+                dao.updateEmployee(emp);
             }
             loadTable();
         }

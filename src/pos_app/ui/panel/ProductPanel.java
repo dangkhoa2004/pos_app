@@ -11,6 +11,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
 import pos_app.dao.ProductDAO;
+import pos_app.ui.dialog.CategoryDialog;
 
 public class ProductPanel extends JPanel {
 
@@ -25,16 +26,21 @@ public class ProductPanel extends JPanel {
         JPanel controlPanel = new JPanel(new GridLayout(1, 4, 10, 0));
         controlPanel.setBorder(BorderFactory.createTitledBorder("Thuộc tính khác"));
         String[] btnNames = {
-            "Quản lý loại sản phẩm", "Quản lý màu sắc",
-            "Quản lý kích cỡ", "Quản lý thương hiệu"
+            "Quản lý loại sản phẩm"
         };
         for (String name : btnNames) {
             JButton btn = new RoundedButton(name, 10);
-            btn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
             btn.setPreferredSize(new Dimension(0, 32));
             controlPanel.add(btn);
+            // Thêm xử lý mở dialog
+            if (name.equals("Quản lý loại sản phẩm")) {
+                btn.addActionListener(e -> {
+                    CategoryDialog dialog = new CategoryDialog(SwingUtilities.getWindowAncestor(this));
+                    dialog.setVisible(true);
+                });
+            }
         }
-
         JPanel inputWrapper = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(0, 0, 0, 20);

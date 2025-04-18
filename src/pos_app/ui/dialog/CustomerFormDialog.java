@@ -55,6 +55,34 @@ public class CustomerFormDialog extends JDialog {
 
         JButton btnOK = new JButton("Xác nhận");
         btnOK.addActionListener(e -> {
+            JOptionPane.showConfirmDialog(
+                    null,
+                    "Bạn có chắc chắn muốn sửa khách hàng này",
+                    "Xác nhận xóa",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+            String name = tfName.getText().trim();
+            String phone = tfPhone.getText().trim();
+
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập tên khách hàng.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                tfName.requestFocus();
+                return;
+            }
+
+            if (phone.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                tfPhone.requestFocus();
+                return;
+            }
+
+            if (!phone.matches("^0\\d{9}$")) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ. Phải bắt đầu bằng 0 và đủ 10 chữ số.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                tfPhone.requestFocus();
+                return;
+            }
+
             submitted = true;
             setVisible(false);
         });
