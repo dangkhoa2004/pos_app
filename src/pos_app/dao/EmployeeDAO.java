@@ -94,4 +94,29 @@ public class EmployeeDAO {
             ex.printStackTrace();
         }
     }
+
+    public static Employee checkLogin(String username, String password) {
+        String sql = "SELECT * FROM employees WHERE username = ? AND password = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Employee(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getInt("role_id"),
+                        rs.getString("phone"),
+                        rs.getString("email")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }
