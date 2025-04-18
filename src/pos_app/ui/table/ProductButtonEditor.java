@@ -3,6 +3,7 @@ package pos_app.ui.table;
 import pos_app.dao.ProductDAO;
 import pos_app.models.Product;
 import pos_app.ui.dialog.ProductFormDialog;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -13,12 +14,10 @@ public class ProductButtonEditor extends AbstractCellEditor implements TableCell
     enum Clicked {
         NONE, EDIT, DELETE
     }
-
     private Clicked clicked = Clicked.NONE;
     private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
     private final JButton btnEdit = new JButton("Sửa");
     private final JButton btnDelete = new JButton("Xóa");
-
     private final DefaultTableModel model;
     private final ProductDAO dao;
     private final Runnable reloadAction;
@@ -60,11 +59,12 @@ public class ProductButtonEditor extends AbstractCellEditor implements TableCell
         String name = (String) model.getValueAt(row, 1);
         double price = (double) model.getValueAt(row, 2);
         int quantity = (int) model.getValueAt(row, 3);
+        String imagePath = (String) model.getValueAt(row, 4);
 
         switch (clicked) {
             case EDIT -> {
                 ProductFormDialog dlg = new ProductFormDialog(null, "Sửa sản phẩm",
-                        new Product(id, name, price, quantity));
+                        new Product(id, name, price, quantity, imagePath));
                 dlg.setVisible(true);
                 if (dlg.isSubmitted()) {
                     dao.updateProduct(dlg.getProductData(id));
@@ -82,5 +82,29 @@ public class ProductButtonEditor extends AbstractCellEditor implements TableCell
             }
         }
         return "";
+    }
+
+    public static class BtnRenderer extends JPanel implements javax.swing.table.TableCellRenderer {
+        private final JButton edit = new JButton("Sửa");
+        private final JButton del = new JButton("Xóa");
+
+        public BtnRenderer() {
+            setOpaque(true);
+            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
+            edit.setFocusable(false);
+            del.setFocusable(false);
+            edit.setBackground(new Color(46, 204, 113));
+            del.setBackground(new Color(231, 76, 60));
+            edit.setForeground(Color.WHITE);
+            del.setForeground(Color.WHITE);
+            add(edit);
+            add(del);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+            return this;
+        }
     }
 }

@@ -35,6 +35,7 @@ CREATE TABLE products (
     name VARCHAR(100),
     price DECIMAL(10,2),
     quantity INT,
+    image_path VARCHAR(255),
     category_id INT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(id)

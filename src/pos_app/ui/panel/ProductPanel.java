@@ -1,17 +1,19 @@
 package pos_app.ui.panel;
 
+import java.awt.*;
+import java.io.File;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import pos_app.dao.ProductDAO;
 import pos_app.models.Product;
 import pos_app.ui.components.RoundedButton;
 import pos_app.ui.components.RoundedTextField;
+import pos_app.ui.dialog.CategoryDialog;
 import pos_app.ui.dialog.ProductFormDialog;
 import pos_app.ui.table.ProductButtonEditor;
-import pos_app.ui.table.ButtonRenderer;
-import javax.swing.*;
-import javax.swing.table.*;
-import java.awt.*;
-import java.util.List;
-import pos_app.dao.ProductDAO;
-import pos_app.ui.dialog.CategoryDialog;
 
 public class ProductPanel extends JPanel {
 
@@ -25,15 +27,12 @@ public class ProductPanel extends JPanel {
 
         JPanel controlPanel = new JPanel(new GridLayout(1, 4, 10, 0));
         controlPanel.setBorder(BorderFactory.createTitledBorder("Thuộc tính khác"));
-        String[] btnNames = {
-            "Quản lý loại sản phẩm"
-        };
+        String[] btnNames = {"Quản lý loại sản phẩm"};
         for (String name : btnNames) {
             JButton btn = new RoundedButton(name, 10);
             btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
             btn.setPreferredSize(new Dimension(0, 32));
             controlPanel.add(btn);
-            // Thêm xử lý mở dialog
             if (name.equals("Quản lý loại sản phẩm")) {
                 btn.addActionListener(e -> {
                     CategoryDialog dialog = new CategoryDialog(SwingUtilities.getWindowAncestor(this));
@@ -50,19 +49,18 @@ public class ProductPanel extends JPanel {
         gbc.weightx = 0.3;
         inputWrapper.add(controlPanel, gbc);
 
-        model = new DefaultTableModel(new String[]{"ID", "Tên", "Giá", "Số lượng", "Hành động"}, 0) {
+        model = new DefaultTableModel(new String[]{"ID", "Tên", "Giá", "Số lượng", "Hình ảnh", "Hành động"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 4;
+                return column == 5;
             }
         };
         table = new JTable(model);
-        table.setRowHeight(28);
+        table.setRowHeight(60);
         styleTable(table);
-        table.getColumn("Hành động").setCellRenderer(new ButtonRenderer());
-        table.getColumn("Hành động").setCellEditor(
-                new ProductButtonEditor(model, dao, this::loadTable)
-        );
+        table.getColumn("Hình ảnh").setCellRenderer(new ImageRenderer());
+        table.getColumn("Hành động").setCellRenderer(new ProductButtonEditor.BtnRenderer());
+        table.getColumn("Hành động").setCellEditor(new ProductButtonEditor(model, dao, this::loadTable));
 
         RoundedTextField tfSearch = new RoundedTextField(20, 15);
         JButton btnSearch = new RoundedButton("Tìm", 15);
@@ -73,7 +71,7 @@ public class ProductPanel extends JPanel {
             model.setRowCount(0);
             for (Product p : dao.getAllProducts()) {
                 if (p.getName().toLowerCase().contains(keyword)) {
-                    model.addRow(new Object[]{p.getId(), p.getName(), p.getPrice(), p.getQuantity(), "Hành động"});
+                    model.addRow(new Object[]{p.getId(), p.getName(), p.getPrice(), p.getQuantity(), p.getImagePath(), "Hành động"});
                 }
             }
         });
@@ -130,7 +128,33 @@ public class ProductPanel extends JPanel {
         model.setRowCount(0);
         List<Product> list = dao.getAllProducts();
         for (Product p : list) {
-            model.addRow(new Object[]{p.getId(), p.getName(), p.getPrice(), p.getQuantity(), "Hành động"});
+            model.addRow(new Object[]{p.getId(), p.getName(), p.getPrice(), p.getQuantity(), p.getImagePath(), "Hành động"});
         }
+    }
+
+    public static class ImageRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+            JLabel label = new JLabel();
+            label.setHorizontalAlignment(JLabel.CENTER);
+            if (value != null) {
+                String path = "src/pos_app/pictures/" + value.toString();
+                File file = new File(path);
+                if (file.exists()) {
+                    ImageIcon icon = new ImageIcon(path);
+                    Image scaled = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                    label.setIcon(new ImageIcon(scaled));
+                } else {
+                    label.setText("(Không có ảnh)");
+                }
+            }
+            return label;
+        }
+    }
+
+    private DefaultTableModel panelModel() {
+        return this.model;
     }
 }

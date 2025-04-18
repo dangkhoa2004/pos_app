@@ -26,7 +26,8 @@ public class ProductDAO {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getDouble("price"),
-                        rs.getInt("quantity")
+                        rs.getInt("quantity"),
+                        rs.getString("image_path") // lấy thêm đường dẫn ảnh
                 );
                 list.add(p);
             }
@@ -37,12 +38,13 @@ public class ProductDAO {
     }
 
     public void insertProduct(Product p) {
-        String sql = "INSERT INTO products(name, price, quantity) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO products(name, price, quantity, image_path) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, p.getName());
             stmt.setDouble(2, p.getPrice());
             stmt.setInt(3, p.getQuantity());
+            stmt.setString(4, p.getImagePath()); // thêm image path
             stmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,13 +52,14 @@ public class ProductDAO {
     }
 
     public void updateProduct(Product p) {
-        String sql = "UPDATE products SET name = ?, price = ?, quantity = ? WHERE id = ?";
+        String sql = "UPDATE products SET name = ?, price = ?, quantity = ?, image_path = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, p.getName());
             stmt.setDouble(2, p.getPrice());
             stmt.setInt(3, p.getQuantity());
-            stmt.setInt(4, p.getId());
+            stmt.setString(4, p.getImagePath()); // cập nhật image path
+            stmt.setInt(5, p.getId());
             stmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,7 +67,7 @@ public class ProductDAO {
     }
 
     public void deleteProduct(int id) {
-        String sql = "hi";
+        String sql = "DELETE FROM products WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
@@ -73,5 +76,4 @@ public class ProductDAO {
             e.printStackTrace();
         }
     }
-
 }
