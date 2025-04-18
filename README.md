@@ -1,5 +1,7 @@
 # 🛒 POS_App – Ứng dụng Quản lý Bán hàng
 
+[![🌐 English](https://img.shields.io/badge/Language-English-blue)](./README_EN.md) [![🌐 Tiếng Việt](https://img.shields.io/badge/Ngôn_ngữ-Tiếng_Việt-red)](./README.md)
+
 Một ứng dụng quản lý bán hàng toàn diện phát triển bằng **Java Swing**, thiết kế theo mô hình **MVC + UI Layered**, hỗ trợ đầy đủ các tính năng quản lý sản phẩm, hóa đơn, khách hàng, tồn kho và nhân viên. Giao diện hiện đại, dễ sử dụng, có thể mở rộng.
 
 ---
@@ -142,5 +144,3 @@ pos_app/
 - 📧 **Email:** 04dkhoa04@gmail.com
 - 💬 **Facebook:** [Đăng Khoa](https://www.facebook.com/dangkh0a2004)
 - ☕ Bạn thấy hay? Hãy ⭐ cho repo này nhé!
-
----
