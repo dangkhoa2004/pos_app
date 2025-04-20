@@ -1,17 +1,56 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
+ */
 package pos_app.ui.dialog;
 
 import javax.swing.*;
 import java.awt.*;
 import pos_app.models.Customer;
 
+/**
+ * CustomerFormDialog là dialog để thêm hoặc chỉnh sửa thông tin khách hàng.
+ *
+ * Cung cấp các trường nhập liệu gồm: tên, số điện thoại, email và địa chỉ. Có
+ * xác thực đầu vào và yêu cầu xác nhận trước khi lưu. Được sử dụng trong các
+ * chức năng CRUD khách hàng.
+ *
+ * @author 04dkh
+ */
 public class CustomerFormDialog extends JDialog {
 
+    /**
+     * Ô nhập tên khách hàng
+     */
     private final JTextField tfName = new JTextField(20);
+
+    /**
+     * Ô nhập số điện thoại khách hàng
+     */
     private final JTextField tfPhone = new JTextField(20);
+
+    /**
+     * Ô nhập email khách hàng
+     */
     private final JTextField tfEmail = new JTextField(20);
+
+    /**
+     * Ô nhập địa chỉ khách hàng
+     */
     private final JTextField tfAddress = new JTextField(20);
+
+    /**
+     * Cờ đánh dấu form đã được xác nhận
+     */
     private boolean submitted = false;
 
+    /**
+     * Tạo dialog thêm hoặc chỉnh sửa khách hàng.
+     *
+     * @param parent cửa sổ cha
+     * @param title tiêu đề dialog
+     * @param existing khách hàng đang chỉnh sửa (null nếu thêm mới)
+     */
     public CustomerFormDialog(JFrame parent, String title, Customer existing) {
         super(parent, title, true);
         setSize(450, 300);
@@ -46,6 +85,13 @@ public class CustomerFormDialog extends JDialog {
         add(footer, BorderLayout.SOUTH);
     }
 
+    /**
+     * Tạo dòng nhập liệu gồm label và JTextField.
+     *
+     * @param labelText tiêu đề trường
+     * @param inputField ô nhập liệu
+     * @return panel chứa dòng nhập
+     */
     private JPanel createFormRow(String labelText, JTextField inputField) {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
@@ -61,6 +107,10 @@ public class CustomerFormDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Xử lý khi người dùng nhấn "Xác nhận". Kiểm tra hợp lệ tên và số điện
+     * thoại trước khi xác nhận.
+     */
     private void handleSubmit() {
         String name = tfName.getText().trim();
         String phone = tfPhone.getText().trim();
@@ -94,15 +144,32 @@ public class CustomerFormDialog extends JDialog {
         }
     }
 
+    /**
+     * Hiển thị hộp thoại lỗi và focus vào thành phần bị lỗi.
+     *
+     * @param message thông báo lỗi
+     * @param component trường bị lỗi
+     */
     private void showError(String message, JComponent component) {
         JOptionPane.showMessageDialog(this, message, "Lỗi", JOptionPane.ERROR_MESSAGE);
         component.requestFocus();
     }
 
+    /**
+     * Kiểm tra xem người dùng đã xác nhận form hay chưa.
+     *
+     * @return true nếu đã xác nhận, false nếu chưa
+     */
     public boolean isSubmitted() {
         return submitted;
     }
 
+    /**
+     * Lấy dữ liệu khách hàng được nhập từ form.
+     *
+     * @param id mã khách hàng (nếu đang cập nhật)
+     * @return đối tượng Customer
+     */
     public Customer getCustomerData(int id) {
         return new Customer(
                 id,

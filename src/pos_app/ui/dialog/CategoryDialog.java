@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
+ */
 package pos_app.ui.dialog;
 
 import javax.swing.*;
@@ -6,23 +10,50 @@ import java.awt.*;
 import pos_app.dao.CategoryDAO;
 import pos_app.models.Category;
 
+/**
+ * CategoryDialog là cửa sổ quản lý danh sách loại sản phẩm.
+ *
+ * Giao diện cho phép người dùng: - Xem danh sách loại sản phẩm - Thêm, sửa, xóa
+ * loại sản phẩm thông qua CategoryFormDialog
+ *
+ * Sử dụng CategoryDAO để thao tác dữ liệu.
+ *
+ * @author 04dkh
+ */
 public class CategoryDialog extends JDialog {
 
+    /**
+     * Model bảng hiển thị loại sản phẩm
+     */
     private final DefaultTableModel model = new DefaultTableModel(new String[]{"ID", "Tên", "Mô tả"}, 0) {
         @Override
         public boolean isCellEditable(int row, int column) {
             return false; // Không cho sửa trực tiếp trong bảng
         }
     };
+
+    /**
+     * Bảng hiển thị dữ liệu loại sản phẩm
+     */
     private final JTable table = new JTable(model);
+
+    /**
+     * DAO dùng để thao tác với bảng categories
+     */
     private final CategoryDAO dao = new CategoryDAO();
 
+    /**
+     * Khởi tạo dialog quản lý loại sản phẩm.
+     *
+     * @param owner cửa sổ cha để canh giữa dialog
+     */
     public CategoryDialog(Window owner) {
         super(owner, "Quản lý loại sản phẩm", ModalityType.APPLICATION_MODAL);
         setSize(600, 400);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout(10, 10));
 
+        // Cấu hình bảng
         table.setRowHeight(28);
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -31,10 +62,12 @@ public class CategoryDialog extends JDialog {
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createTitledBorder("Danh sách loại sản phẩm"));
 
+        // Các nút thao tác
         JButton btnAdd = new JButton("Thêm");
         JButton btnEdit = new JButton("Sửa");
         JButton btnDelete = new JButton("Xóa");
 
+        // Thêm mới loại sản phẩm
         btnAdd.addActionListener(e -> {
             CategoryFormDialog form = new CategoryFormDialog(this, "Thêm loại sản phẩm", null);
             form.setVisible(true);
@@ -44,8 +77,10 @@ public class CategoryDialog extends JDialog {
             }
         });
 
+        // Sửa loại sản phẩm
         btnEdit.addActionListener(e -> handleEdit());
 
+        // Xóa loại sản phẩm
         btnDelete.addActionListener(e -> handleDelete());
 
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -58,6 +93,9 @@ public class CategoryDialog extends JDialog {
         loadTable();
     }
 
+    /**
+     * Xử lý sự kiện sửa loại sản phẩm được chọn.
+     */
     private void handleEdit() {
         int row = table.getSelectedRow();
         if (row == -1) {
@@ -90,6 +128,9 @@ public class CategoryDialog extends JDialog {
         }
     }
 
+    /**
+     * Xử lý sự kiện xóa loại sản phẩm được chọn.
+     */
     private void handleDelete() {
         int row = table.getSelectedRow();
         if (row == -1) {
@@ -112,6 +153,9 @@ public class CategoryDialog extends JDialog {
         }
     }
 
+    /**
+     * Tải lại toàn bộ dữ liệu từ database và hiển thị lên bảng.
+     */
     private void loadTable() {
         model.setRowCount(0);
         for (Category c : dao.getAllCategories()) {

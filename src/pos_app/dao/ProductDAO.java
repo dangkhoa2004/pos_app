@@ -51,6 +51,39 @@ public class ProductDAO {
     }
 
     /**
+     * Tìm kiếm sản phẩm theo ID.
+     *
+     * @param id mã định danh sản phẩm
+     * @return đối tượng Product nếu tìm thấy, null nếu không có
+     */
+    public Product getProductById(int id) {
+        String sql = "SELECT * FROM products WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Product(
+                            rs.getInt("id"),
+                            rs.getString("barcode"),
+                            rs.getString("name"),
+                            rs.getDouble("price"),
+                            rs.getInt("quantity"),
+                            rs.getString("image_path")
+                    );
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
      * Thêm sản phẩm mới vào database.
      *
      * @param p đối tượng sản phẩm cần thêm

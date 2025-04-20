@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
+ */
 package pos_app.ui.dialog;
 
 import pos_app.models.Product;
@@ -10,12 +14,61 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+/**
+ * ProductFormDialog là cửa sổ nhập liệu để thêm hoặc chỉnh sửa sản phẩm.
+ *
+ * Cho phép người dùng nhập mã vạch, tên, giá, số lượng và chọn ảnh sản phẩm.
+ * Ảnh được sao chép về thư mục `src/pos_app/pictures` và chỉ lưu tên file vào
+ * imagePath.
+ *
+ * Form sử dụng để tạo mới hoặc cập nhật thông tin sản phẩm trong hệ thống POS.
+ *
+ * @author 04dkh
+ */
 public class ProductFormDialog extends JDialog {
 
-    private JTextField tfBarCode, tfName, tfPrice, tfQuantity, tfImage;
+    /**
+     * Trường nhập mã vạch sản phẩm
+     */
+    private JTextField tfBarCode;
+
+    /**
+     * Trường nhập tên sản phẩm
+     */
+    private JTextField tfName;
+
+    /**
+     * Trường nhập giá sản phẩm
+     */
+    private JTextField tfPrice;
+
+    /**
+     * Trường nhập số lượng sản phẩm
+     */
+    private JTextField tfQuantity;
+
+    /**
+     * Trường hiển thị đường dẫn ảnh đã chọn
+     */
+    private JTextField tfImage;
+
+    /**
+     * Cờ cho biết người dùng đã nhấn "Xác nhận" hay chưa
+     */
     private boolean submitted = false;
+
+    /**
+     * Tên file ảnh đã chọn
+     */
     private String selectedImagePath = null;
 
+    /**
+     * Khởi tạo form thêm/sửa sản phẩm.
+     *
+     * @param parent cửa sổ cha
+     * @param title tiêu đề form
+     * @param existingProduct sản phẩm hiện tại (null nếu thêm mới)
+     */
     public ProductFormDialog(JFrame parent, String title, Product existingProduct) {
         super(parent, title, true);
         setSize(450, 380);
@@ -43,7 +96,9 @@ public class ProductFormDialog extends JDialog {
                 tfImage.setText(selectedImagePath);
 
                 File destFolder = new File("src/pos_app/pictures");
-                if (!destFolder.exists()) destFolder.mkdirs();
+                if (!destFolder.exists()) {
+                    destFolder.mkdirs();
+                }
 
                 Path dest = destFolder.toPath().resolve(selectedImagePath);
                 try {
@@ -74,6 +129,7 @@ public class ProductFormDialog extends JDialog {
         add(formPanel, BorderLayout.CENTER);
         add(footer, BorderLayout.SOUTH);
 
+        // Nếu đang chỉnh sửa, nạp dữ liệu vào form
         if (existingProduct != null) {
             tfBarCode.setText(existingProduct.getBarcode());
             tfName.setText(existingProduct.getName());
@@ -84,6 +140,13 @@ public class ProductFormDialog extends JDialog {
         }
     }
 
+    /**
+     * Tạo một dòng nhập liệu đơn với label và JTextField.
+     *
+     * @param labelText nhãn hiển thị
+     * @param field trường nhập dữ liệu
+     * @return JPanel chứa dòng nhập
+     */
     private JPanel createFormRow(String labelText, JTextField field) {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
@@ -98,6 +161,14 @@ public class ProductFormDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Tạo dòng nhập ảnh với nút "Chọn ảnh".
+     *
+     * @param labelText nhãn hiển thị
+     * @param field ô hiển thị tên ảnh
+     * @param button nút chọn ảnh
+     * @return JPanel chứa dòng chọn ảnh
+     */
     private JPanel createFormRowWithButton(String labelText, JTextField field, JButton button) {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
@@ -117,10 +188,21 @@ public class ProductFormDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Kiểm tra xem người dùng đã nhấn nút xác nhận chưa.
+     *
+     * @return true nếu đã xác nhận, false nếu đóng dialog mà không lưu
+     */
     public boolean isSubmitted() {
         return submitted;
     }
 
+    /**
+     * Trích xuất dữ liệu từ form thành đối tượng Product.
+     *
+     * @param existingId ID của sản phẩm (0 nếu là thêm mới)
+     * @return Product chứa thông tin người dùng đã nhập
+     */
     public Product getProductData(int existingId) {
         return new Product(
                 existingId,

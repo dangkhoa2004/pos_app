@@ -1,21 +1,71 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
+ */
 package pos_app.ui.dialog;
 
 import javax.swing.*;
 import java.awt.*;
 import pos_app.models.Employee;
 
+/**
+ * EmployeeFormDialog là cửa sổ nhập liệu để thêm hoặc chỉnh sửa nhân viên.
+ *
+ * Giao diện cho phép nhập: họ tên, username, mật khẩu, role ID, số điện thoại
+ * và email. Có xác thực đầu vào và yêu cầu xác nhận trước khi lưu dữ liệu. Được
+ * sử dụng kết hợp với danh sách nhân viên trong hệ thống POS.
+ *
+ * @author 04dkh
+ */
 public class EmployeeFormDialog extends JDialog {
 
+    /**
+     * Ô nhập họ tên nhân viên
+     */
     private final JTextField tfName = new JTextField(20);
+
+    /**
+     * Ô nhập tên đăng nhập
+     */
     private final JTextField tfUser = new JTextField(20);
+
+    /**
+     * Ô nhập mật khẩu
+     */
     private final JPasswordField pfPass = new JPasswordField(20);
+
+    /**
+     * Ô nhập role ID
+     */
     private final JTextField tfRole = new JTextField(20);
+
+    /**
+     * Ô nhập số điện thoại
+     */
     private final JTextField tfPhone = new JTextField(20);
+
+    /**
+     * Ô nhập email
+     */
     private final JTextField tfEmail = new JTextField(20);
+
+    /**
+     * Cờ xác nhận người dùng đã nhấn "Lưu"
+     */
     private boolean submitted = false;
 
+    /**
+     * Đối tượng nhân viên gốc (nếu đang chỉnh sửa)
+     */
     private final Employee originalEmployee;
 
+    /**
+     * Tạo form thêm hoặc sửa thông tin nhân viên.
+     *
+     * @param parent cửa sổ cha
+     * @param title tiêu đề dialog
+     * @param emp đối tượng nhân viên hiện tại, null nếu thêm mới
+     */
     public EmployeeFormDialog(JFrame parent, String title, Employee emp) {
         super(parent, title, true);
         this.originalEmployee = emp;
@@ -55,6 +105,13 @@ public class EmployeeFormDialog extends JDialog {
         add(footer, BorderLayout.SOUTH);
     }
 
+    /**
+     * Tạo một dòng nhập gồm label và ô nhập (textfield, passwordfield).
+     *
+     * @param labelText nhãn của trường
+     * @param inputField thành phần nhập liệu
+     * @return JPanel chứa dòng nhập
+     */
     private JPanel createFormRow(String labelText, JComponent inputField) {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
@@ -70,6 +127,10 @@ public class EmployeeFormDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Xử lý xác nhận khi người dùng nhấn "Lưu". Thực hiện kiểm tra hợp lệ trước
+     * khi đóng dialog.
+     */
     private void handleSubmit() {
         String name = tfName.getText().trim();
         String user = tfUser.getText().trim();
@@ -116,19 +177,36 @@ public class EmployeeFormDialog extends JDialog {
         }
     }
 
+    /**
+     * Hiển thị thông báo lỗi và focus vào thành phần bị lỗi.
+     *
+     * @param message nội dung lỗi
+     * @param fieldToFocus trường cần focus lại
+     */
     private void showError(String message, JComponent fieldToFocus) {
         JOptionPane.showMessageDialog(this, message, "Lỗi", JOptionPane.ERROR_MESSAGE);
         fieldToFocus.requestFocus();
     }
 
+    /**
+     * Kiểm tra xem form đã được xác nhận hay chưa.
+     *
+     * @return true nếu đã xác nhận, false nếu chưa
+     */
     public boolean isSubmitted() {
         return submitted;
     }
 
+    /**
+     * Lấy dữ liệu nhân viên từ form. Nếu đang cập nhật và không nhập mật khẩu
+     * mới, giữ nguyên mật khẩu cũ.
+     *
+     * @return đối tượng Employee chứa dữ liệu từ form
+     */
     public Employee getEmployeeData() {
         String password = new String(pfPass.getPassword()).trim();
         if (originalEmployee != null && password.isEmpty()) {
-            password = originalEmployee.getPassword(); // đảm bảo bạn load sẵn mật khẩu từ DB nếu cần
+            password = originalEmployee.getPassword(); // giữ lại mật khẩu cũ nếu không thay đổi
         }
 
         return new Employee(
