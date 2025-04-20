@@ -38,16 +38,23 @@ pos_app/
 
 ## 🧩 Thư viện sử dụng
 
-| Tên Thư viện        | Mô tả                                                     |
-| ------------------- | --------------------------------------------------------- |
-| `FlatLaf`           | Giao diện hiện đại, hỗ trợ SVG, Dark mode, IntelliJ Theme |
-| `FlatLaf Extras`    | Tuỳ chỉnh theme và icon từ SVG dễ dàng                    |
-| `darklaf-core`      | (Tuỳ chọn) Hiệu ứng shadow, nền blur                      |
-| `mysql-connector-j` | Kết nối MySQL (JDBC)                                      |
-| `poi-ooxml`, `poi`  | Đọc/Ghi file Excel (xuất báo cáo, thống kê)               |
-| `jfreechart`        | Biểu đồ Pie, Bar (tab Thống kê)                           |
-| `junit`             | Unit test cho DAO và các module quan trọng                |
-| `protobuf-java`     | Dự phòng: lưu dữ liệu dạng nhị phân                       |
+| Tên Thư viện            | Mô tả                                                                 |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `FlatLaf`               | Giao diện hiện đại, hỗ trợ SVG, Dark mode, IntelliJ Theme             |
+| `flatlaf-extras`        | Tuỳ chỉnh theme và icon từ SVG dễ dàng                                |
+| `darklaf-core`          | (Tuỳ chọn) Hiệu ứng shadow, nền blur                                  |
+| `darklaf-utils`         | (Đi kèm) Công cụ hỗ trợ cho darklaf-core                              |
+| `darklaf-property-loader` | (Đi kèm) Hỗ trợ tải cấu hình dark theme                              |
+| `mysql-connector-j`     | Kết nối MySQL (JDBC)                                                   |
+| `protobuf-java`         | Dự phòng: lưu dữ liệu dạng nhị phân                                   |
+| `jsvg`                  | Hiển thị icon SVG cho giao diện                                        |
+| `java-se` (`core-3.5.3.jar`, `javase-3.5.3.jar`) | Thư viện xử lý hình ảnh / webcam / barcode                    |
+| `webcam-capture`        | Tích hợp webcam để quét barcode, QR hoặc chụp ảnh                     |
+| `slf4j-api`, `slf4j-simple` | Ghi log hệ thống dạng đơn giản                                      |
+| `bridj`                 | Dành riêng cho Windows, hỗ trợ native call cho webcam                 |
+| `poi`, `poi-ooxml`      | Đọc/Ghi file Excel (xuất báo cáo, thống kê)                           |
+| `jfreechart`            | Biểu đồ Pie, Bar (tab Thống kê)                                       |
+| `junit`                 | Unit test cho DAO và các module quan trọng                            |
 
 ---
 

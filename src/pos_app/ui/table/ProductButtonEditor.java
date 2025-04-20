@@ -56,15 +56,16 @@ public class ProductButtonEditor extends AbstractCellEditor implements TableCell
     @Override
     public Object getCellEditorValue() {
         int id = (int) model.getValueAt(row, 0);
-        String name = (String) model.getValueAt(row, 1);
-        double price = (double) model.getValueAt(row, 2);
-        int quantity = (int) model.getValueAt(row, 3);
-        String imagePath = (String) model.getValueAt(row, 4);
+        String barcode = (String) model.getValueAt(row, 1);
+        String name = (String) model.getValueAt(row, 2);
+        double price = (double) model.getValueAt(row, 3);
+        int quantity = (int) model.getValueAt(row, 4);
+        String imagePath = (String) model.getValueAt(row, 5);
 
         switch (clicked) {
             case EDIT -> {
                 ProductFormDialog dlg = new ProductFormDialog(null, "Sửa sản phẩm",
-                        new Product(id, name, price, quantity, imagePath));
+                        new Product(id, barcode, name, price, quantity, imagePath));
                 dlg.setVisible(true);
                 if (dlg.isSubmitted()) {
                     dao.updateProduct(dlg.getProductData(id));
@@ -85,6 +86,7 @@ public class ProductButtonEditor extends AbstractCellEditor implements TableCell
     }
 
     public static class BtnRenderer extends JPanel implements javax.swing.table.TableCellRenderer {
+
         private final JButton edit = new JButton("Sửa");
         private final JButton del = new JButton("Xóa");
 

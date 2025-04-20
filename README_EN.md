@@ -38,16 +38,23 @@ pos_app/
 
 ## 🧩 Libraries Used
 
-| Library Name        | Description                                                 |
-| ------------------- | ----------------------------------------------------------- |
-| `FlatLaf`           | Modern UI with SVG support, dark mode, IntelliJ-like themes |
-| `FlatLaf Extras`    | Easy customization of theme and SVG icons                   |
-| `darklaf-core`      | (Optional) Shadow and blur effects                          |
-| `mysql-connector-j` | JDBC driver for MySQL connection                            |
-| `poi-ooxml`, `poi`  | Read/write Excel files (for reports and statistics)         |
-| `jfreechart`        | Pie and Bar charts (used in Statistics tab)                 |
-| `junit`             | Unit testing for DAOs and critical modules                  |
-| `protobuf-java`     | Backup option: binary data storage                          |
+| Library Name               | Description                                                                 |
+| -------------------------- | --------------------------------------------------------------------------- |
+| `FlatLaf`                  | Modern UI look and feel with SVG support, Dark mode, IntelliJ-like theme   |
+| `flatlaf-extras`           | Easily customize theme and icons from SVG files                            |
+| `darklaf-core`             | (Optional) Enables shadow effects, blurred background                      |
+| `darklaf-utils`            | (Companion) Utilities for darklaf-core                                     |
+| `darklaf-property-loader`  | (Companion) Loads configuration for dark themes                            |
+| `mysql-connector-j`        | MySQL connection via JDBC                                                  |
+| `protobuf-java`            | Backup method for storing data in binary format                            |
+| `jsvg`                     | Renders SVG icons for the UI                                               |
+| `java-se` (`core-3.5.3.jar`, `javase-3.5.3.jar`) | Image processing, webcam, barcode features                   |
+| `webcam-capture`           | Webcam integration for barcode scanning, QR codes, or photo capture        |
+| `slf4j-api`, `slf4j-simple`| Simple logging for the system                                               |
+| `bridj`                    | Windows-only library to support native webcam access                       |
+| `poi`, `poi-ooxml`         | Read/Write Excel files for reports and analytics                           |
+| `jfreechart`               | Render Pie, Bar, and other charts (used in Statistics tab)                 |
+| `junit`                    | Unit testing framework for DAO and core modules                            |
 
 ---
 

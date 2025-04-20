@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/lib/darklaf-core-3.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/mysql-connector-j-9.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/darklaf-property-loader-3.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/jsvg-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/protobuf-java-4.29.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/flatlaf-extras-3.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/flatlaf-3.5.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/darklaf-utils-3.0.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -101,4 +101,9 @@ public class Session {
             e.printStackTrace();
         }
     }
+
+    public static int getEmployeeId() {
+        return (currentUser != null) ? currentUser.getId() : -1;
+    }
+
 }

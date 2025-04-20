@@ -32,6 +32,7 @@ CREATE TABLE categories (
 -- Bảng sản phẩm
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    barcode VARCHAR(100) UNIQUE,
     name VARCHAR(100),
     price DECIMAL(10,2),
     quantity INT,
@@ -145,8 +146,8 @@ CREATE TABLE settings (
 INSERT INTO roles(name) VALUES ('Admin'), ('Nhân viên');
 
 -- Nhân viên
-INSERT INTO employees(name, username, password, role_id) 
-VALUES ('Quản trị viên', 'admin', 'admin123', 1);
+INSERT INTO employees(name, username, password, role_id, phone, email) 
+VALUES ('Quản trị viên', 'admin', 'admin123', 1, '0869938981', '04dkhoa04@gmail.com');
 
 -- Cài đặt hệ thống
 INSERT INTO settings(id, store_name, address, phone, email) 
@@ -159,11 +160,11 @@ VALUES
   ('Đồ uống khác', 'Cà phê, sinh tố, nước trái cây');
 
 -- Sản phẩm
-INSERT INTO products(name, price, quantity, category_id)
+INSERT INTO products(barcode ,image_path ,name, price, quantity, category_id)
 VALUES 
-  ('Cà phê đen', 25000, 100, 2),
-  ('Trà sữa thái xanh', 30000, 80, 1),
-  ('Sinh tố bơ', 35000, 50, 2);
+  ('BC123456789','caphe.png','Cà phê đen', 25000, 100, 2),
+  ('BC123456788','thaixanh.png','Trà sữa thái xanh', 30000, 80, 1),
+  ('BC123456787','bo.png','Sinh tố bơ', 35000, 50, 2);
 
 -- Khách hàng
 INSERT INTO customers(name, phone, email, address)

@@ -12,38 +12,46 @@ public class StockFormDialog extends JDialog {
 
     public StockFormDialog(JFrame parent, String title) {
         super(parent, title, true);
-        setSize(350, 220);
+        setSize(400, 250);
         setLocationRelativeTo(parent);
-        setLayout(new GridBagLayout());
+        setLayout(new BorderLayout(10, 10));
 
-        GridBagConstraints g = new GridBagConstraints();
-        g.insets = new Insets(8, 10, 8, 10);
-        g.fill = GridBagConstraints.HORIZONTAL;
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 10, 30));
 
-        addRow(g, 0, "Mã sản phẩm:", tfProduct);
-        addRow(g, 1, "Số lượng:", tfQty);
-        addRow(g, 2, "Ghi chú:", tfNote);
+        formPanel.add(createFormRow("Mã sản phẩm:", tfProduct));
+        formPanel.add(createFormRow("Số lượng:", tfQty));
+        formPanel.add(createFormRow("Ghi chú:", tfNote));
 
-        JButton btn = new JButton("Lưu");
-        btn.addActionListener(e -> {
+        JButton btnSave = new JButton("Lưu");
+        btnSave.setPreferredSize(new Dimension(100, 35));
+        btnSave.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnSave.addActionListener(e -> {
             submitted = true;
             setVisible(false);
         });
 
-        g.gridx = 0;
-        g.gridy = 3;
-        g.gridwidth = 2;
-        g.anchor = GridBagConstraints.CENTER;
-        add(btn, g);
+        JPanel footer = new JPanel();
+        footer.add(btnSave);
+
+        add(formPanel, BorderLayout.CENTER);
+        add(footer, BorderLayout.SOUTH);
     }
 
-    private void addRow(GridBagConstraints g, int row, String label, JComponent field) {
-        g.gridx = 0;
-        g.gridy = row;
-        g.gridwidth = 1;
-        add(new JLabel(label), g);
-        g.gridx = 1;
-        add(field, g);
+    private JPanel createFormRow(String labelText, JTextField textField) {
+        JPanel row = new JPanel(new BorderLayout(5, 5));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        JLabel label = new JLabel(labelText);
+        label.setPreferredSize(new Dimension(100, 25));
+
+        textField.setPreferredSize(new Dimension(0, 30));
+        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        row.add(label, BorderLayout.WEST);
+        row.add(textField, BorderLayout.CENTER);
+        return row;
     }
 
     public boolean isSubmitted() {

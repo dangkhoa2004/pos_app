@@ -1,16 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package pos_app.ui.panel;
 
-/**
- *
- * @author 04dkh
- */
 import java.awt.*;
 import javax.swing.*;
 import pos_app.ui.components.RoundedTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class PaymentPanel extends JPanel {
 
@@ -22,6 +16,8 @@ public class PaymentPanel extends JPanel {
     private final JTextField tfCustomerPay = new JTextField(10);
     private final RoundedTextField tfChange = new RoundedTextField("0 đ", 10);
     private final JComboBox<String> cbPaymentMethod = new JComboBox<>(new String[]{"Tiền mặt", "Chuyển khoản", "Momo"});
+
+    private double currentPayable = 0;
 
     public PaymentPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -77,6 +73,24 @@ public class PaymentPanel extends JPanel {
 
         content.add(btnPay);
         add(content, BorderLayout.CENTER);
+        btnPay.addActionListener(e -> {
+            if (onPayment != null) {
+                onPayment.run();
+            }
+        });
+
+        tfCustomerPay.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                updateChange();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                updateChange();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+            }
+        });
     }
 
     private JPanel buildRow(String labelText, JComponent valueComponent, Font labelFont) {
@@ -103,6 +117,62 @@ public class PaymentPanel extends JPanel {
         field.setFocusable(false);
         field.setBackground(new Color(245, 245, 245));
         field.setForeground(Color.DARK_GRAY);
+    }
+
+    public void setValues(int itemCount, double total, double vatRate, double discountRate, double payable) {
+        currentPayable = payable;
+        tfItemCount.setText(String.valueOf(itemCount));
+        tfTotal.setText(String.format("%,.0f đ", total));
+        tfVat.setText(String.format("%.0f%%", vatRate * 100));
+        tfDiscount.setText(String.format("%.0f%%", discountRate * 100));
+        tfPayable.setText(String.format("%,.0f đ", payable));
+        updateChange();
+    }
+
+    private void updateChange() {
+        try {
+            String customerPayStr = tfCustomerPay.getText().replaceAll("[^\\d.]", "");
+            double customerPay = Double.parseDouble(customerPayStr);
+            double change = customerPay - currentPayable;
+            tfChange.setText(String.format("%,.0f đ", change >= 0 ? change : 0));
+        } catch (Exception e) {
+            tfChange.setText("0 đ");
+        }
+    }
+    // Getter để dùng ở POSPanel
+
+    public double getPayableAmount() {
+        return currentPayable;
+    }
+
+    public double getCustomerPaid() {
+        try {
+            return Double.parseDouble(tfCustomerPay.getText().replaceAll("[^\\d.]", ""));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public String getSelectedPaymentMethod() {
+        return cbPaymentMethod.getSelectedItem().toString();
+    }
+
+// Bổ sung sự kiện nút "Thanh toán"
+    private Runnable onPayment;
+
+    public void setOnPayment(Runnable onPayment) {
+        this.onPayment = onPayment;
+    }
+
+    public void resetFields() {
+        tfItemCount.setText("0");
+        tfTotal.setText("0 đ");
+        tfVat.setText("0%");
+        tfDiscount.setText("0%");
+        tfPayable.setText("0 đ");
+        tfCustomerPay.setText("");
+        tfChange.setText("0 đ");
+        currentPayable = 0;
     }
 
 }

@@ -20,13 +20,20 @@ public class EmployeeFormDialog extends JDialog {
         super(parent, title, true);
         this.originalEmployee = emp;
 
-        setLayout(new GridBagLayout());
-        setSize(450, 340);
+        setSize(480, 400);
         setLocationRelativeTo(parent);
+        setLayout(new BorderLayout(10, 10));
 
-        GridBagConstraints g = new GridBagConstraints();
-        g.insets = new Insets(8, 10, 8, 10);
-        g.fill = GridBagConstraints.HORIZONTAL;
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 10, 30));
+
+        formPanel.add(createFormRow("Họ tên:", tfName));
+        formPanel.add(createFormRow("Username:", tfUser));
+        formPanel.add(createFormRow("Mật khẩu:", pfPass));
+        formPanel.add(createFormRow("Role ID:", tfRole));
+        formPanel.add(createFormRow("Số điện thoại:", tfPhone));
+        formPanel.add(createFormRow("Email:", tfEmail));
 
         if (emp != null) {
             tfName.setText(emp.getName());
@@ -36,99 +43,82 @@ public class EmployeeFormDialog extends JDialog {
             tfEmail.setText(emp.getEmail());
         }
 
-        g.gridx = 0;
-        g.gridy = 0;
-        add(new JLabel("Họ tên:"), g);
-        g.gridx = 1;
-        add(tfName, g);
-
-        g.gridx = 0;
-        g.gridy = 1;
-        add(new JLabel("Username:"), g);
-        g.gridx = 1;
-        add(tfUser, g);
-
-        g.gridx = 0;
-        g.gridy = 2;
-        add(new JLabel("Mật khẩu:"), g);
-        g.gridx = 1;
-        add(pfPass, g);
-
-        g.gridx = 0;
-        g.gridy = 3;
-        add(new JLabel("Role ID:"), g);
-        g.gridx = 1;
-        add(tfRole, g);
-
-        g.gridx = 0;
-        g.gridy = 4;
-        add(new JLabel("Số điện thoại:"), g);
-        g.gridx = 1;
-        add(tfPhone, g);
-
-        g.gridx = 0;
-        g.gridy = 5;
-        add(new JLabel("Email:"), g);
-        g.gridx = 1;
-        add(tfEmail, g);
-
         JButton btnOK = new JButton("Xác nhận");
-        btnOK.addActionListener(e -> {
-            String name = tfName.getText().trim();
-            String user = tfUser.getText().trim();
-            String pwd = new String(pfPass.getPassword()).trim();
-            String roleText = tfRole.getText().trim();
-            String phone = tfPhone.getText().trim();
+        btnOK.setPreferredSize(new Dimension(100, 35));
+        btnOK.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnOK.addActionListener(e -> handleSubmit());
 
-            if (name.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập họ tên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                tfName.requestFocus();
-                return;
-            }
+        JPanel footer = new JPanel();
+        footer.add(btnOK);
 
-            if (user.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập Username.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                tfUser.requestFocus();
-                return;
-            }
+        add(formPanel, BorderLayout.CENTER);
+        add(footer, BorderLayout.SOUTH);
+    }
 
-            if (pwd.isEmpty() && originalEmployee == null) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                pfPass.requestFocus();
-                return;
-            }
+    private JPanel createFormRow(String labelText, JComponent inputField) {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
-            if (roleText.isEmpty() || !roleText.matches("\\d+")) {
-                JOptionPane.showMessageDialog(this, "Role ID không hợp lệ.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                tfRole.requestFocus();
-                return;
-            }
+        JLabel label = new JLabel(labelText);
+        label.setPreferredSize(new Dimension(100, 25));
 
-            if (phone.isEmpty() || !phone.matches("^0\\d{9}$")) {
-                JOptionPane.showMessageDialog(this, "Số điện thoại phải có 10 số và bắt đầu bằng 0.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                tfPhone.requestFocus();
-                return;
-            }
+        inputField.setPreferredSize(new Dimension(0, 30));
+        inputField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-            int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có chắc chắn muốn lưu thông tin nhân viên?",
-                    "Xác nhận lưu",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
+        panel.add(label, BorderLayout.WEST);
+        panel.add(inputField, BorderLayout.CENTER);
+        return panel;
+    }
 
-            if (confirm == JOptionPane.YES_OPTION) {
-                submitted = true;
-                setVisible(false);
-            }
-        });
+    private void handleSubmit() {
+        String name = tfName.getText().trim();
+        String user = tfUser.getText().trim();
+        String pwd = new String(pfPass.getPassword()).trim();
+        String roleText = tfRole.getText().trim();
+        String phone = tfPhone.getText().trim();
 
-        g.gridx = 0;
-        g.gridy = 6;
-        g.gridwidth = 2;
-        g.anchor = GridBagConstraints.CENTER;
-        add(btnOK, g);
+        if (name.isEmpty()) {
+            showError("Vui lòng nhập họ tên.", tfName);
+            return;
+        }
+
+        if (user.isEmpty()) {
+            showError("Vui lòng nhập Username.", tfUser);
+            return;
+        }
+
+        if (pwd.isEmpty() && originalEmployee == null) {
+            showError("Vui lòng nhập mật khẩu.", pfPass);
+            return;
+        }
+
+        if (roleText.isEmpty() || !roleText.matches("\\d+")) {
+            showError("Role ID không hợp lệ.", tfRole);
+            return;
+        }
+
+        if (phone.isEmpty() || !phone.matches("^0\\d{9}$")) {
+            showError("Số điện thoại phải có 10 số và bắt đầu bằng 0.", tfPhone);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn lưu thông tin nhân viên?",
+                "Xác nhận lưu",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            submitted = true;
+            setVisible(false);
+        }
+    }
+
+    private void showError(String message, JComponent fieldToFocus) {
+        JOptionPane.showMessageDialog(this, message, "Lỗi", JOptionPane.ERROR_MESSAGE);
+        fieldToFocus.requestFocus();
     }
 
     public boolean isSubmitted() {
@@ -137,9 +127,8 @@ public class EmployeeFormDialog extends JDialog {
 
     public Employee getEmployeeData() {
         String password = new String(pfPass.getPassword()).trim();
-        // Nếu đang sửa và mật khẩu không nhập → giữ nguyên
         if (originalEmployee != null && password.isEmpty()) {
-            password = originalEmployee.getPassword(); // bạn cần truyền password từ DB vào nếu muốn giữ
+            password = originalEmployee.getPassword(); // đảm bảo bạn load sẵn mật khẩu từ DB nếu cần
         }
 
         return new Employee(

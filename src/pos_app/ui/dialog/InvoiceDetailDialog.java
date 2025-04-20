@@ -21,7 +21,7 @@ public class InvoiceDetailDialog extends JDialog {
 
         iv.getItems().forEach(it -> {
             m.addRow(new Object[]{
-                    it.getProductId(), it.getQuantity(), it.getUnitPrice(), it.getLineTotal()
+                it.getProductId(), it.getQuantity(), it.getUnitPrice(), it.getLineTotal()
             });
         });
         add(new JScrollPane(t), BorderLayout.CENTER);

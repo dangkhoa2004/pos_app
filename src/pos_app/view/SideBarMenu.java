@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package pos_app.view;
 
 /**
@@ -33,7 +29,6 @@ public class SideBarMenu extends JPanel {
         setPreferredSize(new Dimension(230, 0));
         setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        // -------- LOGO --------
         JLabel logo = new JLabel();
         logo.setPreferredSize(new Dimension(180, 180));
         logo.setMaximumSize(new Dimension(180, 180));
@@ -43,7 +38,6 @@ public class SideBarMenu extends JPanel {
         add(logo);
         add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // -------- MENU ITEMS --------
         addMenu("Bán Hàng", IconUtil.loadSvg("ad_product.svg", 20), new POSPanel(), onMenuClick);
         addMenu("Quản lý sản phẩm", IconUtil.loadSvg("ad_product.svg", 20), new ProductPanel(), onMenuClick);
         addMenu("Khách hàng", IconUtil.loadSvg("customer_service_agent.svg", 20), new CustomerPanel(), onMenuClick);
@@ -55,7 +49,6 @@ public class SideBarMenu extends JPanel {
 
         add(Box.createVerticalGlue());
 
-        // -------- LOGOUT --------
         JButton btnLogout = new JButton("Đăng xuất");
         btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnLogout.setMaximumSize(new Dimension(180, 40));
@@ -102,12 +95,7 @@ public class SideBarMenu extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (target == null) {
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Tính năng này hiện chưa được phát triển!",
-                            "Thông báo",
-                            JOptionPane.INFORMATION_MESSAGE
-                    );
+                    JOptionPane.showMessageDialog(null, "Tính năng này hiện chưa được phát triển!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     onClick.accept(target);
                 }

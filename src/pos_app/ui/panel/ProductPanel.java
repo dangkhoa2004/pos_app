@@ -14,6 +14,9 @@ import pos_app.ui.components.RoundedTextField;
 import pos_app.ui.dialog.CategoryDialog;
 import pos_app.ui.dialog.ProductFormDialog;
 import pos_app.ui.table.ProductButtonEditor;
+import pos_app.util.QRCodeUtil;
+import com.google.zxing.WriterException;
+import java.awt.image.BufferedImage;
 
 public class ProductPanel extends JPanel {
 
@@ -49,10 +52,10 @@ public class ProductPanel extends JPanel {
         gbc.weightx = 0.3;
         inputWrapper.add(controlPanel, gbc);
 
-        model = new DefaultTableModel(new String[]{"ID", "Tên", "Giá", "Số lượng", "Hình ảnh", "Hành động"}, 0) {
+        model = new DefaultTableModel(new String[]{"ID", "BarCode", "Tên", "Giá", "Số lượng", "Hình ảnh", "Hành động"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 5;
+                return column == 6;
             }
         };
         table = new JTable(model);
@@ -65,13 +68,14 @@ public class ProductPanel extends JPanel {
         RoundedTextField tfSearch = new RoundedTextField(20, 15);
         JButton btnSearch = new RoundedButton("Tìm", 15);
         JButton btnAdd = new RoundedButton("Thêm mới", 15);
+        JButton btnExportQR = new RoundedButton("Xuất mã QR", 15); // ✅ Thêm nút xuất QR
 
         btnSearch.addActionListener(e -> {
             String keyword = tfSearch.getText().trim().toLowerCase();
             model.setRowCount(0);
             for (Product p : dao.getAllProducts()) {
                 if (p.getName().toLowerCase().contains(keyword)) {
-                    model.addRow(new Object[]{p.getId(), p.getName(), p.getPrice(), p.getQuantity(), p.getImagePath(), "Hành động"});
+                    model.addRow(new Object[]{p.getId(), p.getBarcode(), p.getName(), p.getPrice(), p.getQuantity(), p.getImagePath(), "Hành động"});
                 }
             }
         });
@@ -85,8 +89,38 @@ public class ProductPanel extends JPanel {
             }
         });
 
+        // ✅ Sự kiện xuất mã QR
+        btnExportQR.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một sản phẩm để xuất mã QR.");
+                return;
+            }
+            String barcode = model.getValueAt(selectedRow, 1).toString();
+            try {
+                BufferedImage qrImage = QRCodeUtil.generateQRCode(barcode, 300, 300);
+                ImageIcon icon = new ImageIcon(qrImage);
+                JLabel qrLabel = new JLabel(icon);
+                int choice = JOptionPane.showConfirmDialog(this, qrLabel, "Mã QR cho: " + barcode,
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (choice == JOptionPane.OK_OPTION) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setSelectedFile(new File(barcode + ".png"));
+                    if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                        QRCodeUtil.saveQRCodeToFile(barcode, 300, 300, fileChooser.getSelectedFile());
+                        JOptionPane.showMessageDialog(this, "Đã lưu QR tại: " + fileChooser.getSelectedFile().getAbsolutePath());
+                    }
+                }
+            } catch (WriterException | java.io.IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi khi tạo/lưu mã QR.");
+            }
+        });
+
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         leftPanel.add(btnAdd);
+        leftPanel.add(btnExportQR); // ✅ Thêm nút QR vào panel
+
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         rightPanel.add(new JLabel("Tìm kiếm:"));
         rightPanel.add(tfSearch);
@@ -128,7 +162,7 @@ public class ProductPanel extends JPanel {
         model.setRowCount(0);
         List<Product> list = dao.getAllProducts();
         for (Product p : list) {
-            model.addRow(new Object[]{p.getId(), p.getName(), p.getPrice(), p.getQuantity(), p.getImagePath(), "Hành động"});
+            model.addRow(new Object[]{p.getId(), p.getBarcode(), p.getName(), p.getPrice(), p.getQuantity(), p.getImagePath(), "Hành động"});
         }
     }
 
