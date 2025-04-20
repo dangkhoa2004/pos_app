@@ -4,19 +4,30 @@
  */
 package pos_app.dao;
 
-/**
- *
- * @author 04dkh
- */
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import pos_app.models.Customer;
 import pos_app.util.DatabaseConnection;
 
+/**
+ * CustomerDAO dùng để thao tác với bảng customers trong hệ thống POS.
+ *
+ * Cung cấp các chức năng: - Lấy danh sách khách hàng - Thêm, sửa, xóa khách
+ * hàng
+ *
+ * Sử dụng kết nối từ lớp DatabaseConnection.
+ *
+ * @author 04dkh
+ */
 public class CustomerDAO {
 
-    // --- READ ALL -------------------------------------------------
+    /* ===================== READ ALL ===================== */
+    /**
+     * Lấy danh sách toàn bộ khách hàng trong hệ thống.
+     *
+     * @return danh sách Customer
+     */
     public List<Customer> getAllCustomers() {
         List<Customer> list = new ArrayList<>();
         String sql = "SELECT * FROM customers";
@@ -39,7 +50,12 @@ public class CustomerDAO {
         return list;
     }
 
-    // --- CREATE ---------------------------------------------------
+    /* ===================== CREATE ======================= */
+    /**
+     * Thêm mới một khách hàng vào hệ thống.
+     *
+     * @param c đối tượng Customer cần thêm
+     */
     public void insertCustomer(Customer c) {
         String sql = "INSERT INTO customers(name, phone, email, address) VALUES (?, ?, ?, ?)";
 
@@ -55,7 +71,12 @@ public class CustomerDAO {
         }
     }
 
-    // --- UPDATE ---------------------------------------------------
+    /* ===================== UPDATE ======================= */
+    /**
+     * Cập nhật thông tin khách hàng theo ID.
+     *
+     * @param c đối tượng Customer cần cập nhật
+     */
     public void updateCustomer(Customer c) {
         String sql = "UPDATE customers SET name = ?, phone = ?, email = ?, address = ? WHERE id = ?";
 
@@ -72,7 +93,12 @@ public class CustomerDAO {
         }
     }
 
-    // --- DELETE ---------------------------------------------------
+    /* ===================== DELETE ======================= */
+    /**
+     * Xóa khách hàng theo ID.
+     *
+     * @param id mã khách hàng cần xóa
+     */
     public void deleteCustomer(int id) {
         String sql = "DELETE FROM customers WHERE id = ?";
 
