@@ -140,12 +140,12 @@ public class ProductPanel extends JPanel {
         add(inputWrapper, BorderLayout.NORTH);
         add(tableWrapper, BorderLayout.CENTER);
         loadTable();
+        setComponentBackgroundWhite(this);
     }
 
     private void styleTable(JTable table) {
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        header.setBackground(new Color(230, 230, 230));
         header.setPreferredSize(new Dimension(100, 35));
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
@@ -190,5 +190,20 @@ public class ProductPanel extends JPanel {
 
     private DefaultTableModel panelModel() {
         return this.model;
+    }
+
+    private void setComponentBackgroundWhite(Component component) {
+        if (component instanceof JPanel || component instanceof JScrollPane || component instanceof JTabbedPane) {
+            component.setBackground(Color.WHITE);
+        }
+
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
+                // Trừ JTextField và JButton
+                if (!(child instanceof JTextField) && !(child instanceof JButton)) {
+                    setComponentBackgroundWhite(child);
+                }
+            }
+        }
     }
 }

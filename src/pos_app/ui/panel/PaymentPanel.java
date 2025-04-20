@@ -22,7 +22,6 @@ public class PaymentPanel extends JPanel {
     public PaymentPanel() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createTitledBorder("Thanh toán"));
-        setBackground(new Color(250, 252, 255));
 
         setReadOnly(tfTotal);
         setReadOnly(tfPayable);
@@ -64,7 +63,6 @@ public class PaymentPanel extends JPanel {
         content.add(Box.createRigidArea(new Dimension(0, 15)));
 
         JButton btnPay = new JButton("Thanh toán");
-        btnPay.setBackground(new Color(0, 153, 51));
         btnPay.setForeground(Color.WHITE);
         btnPay.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnPay.setFocusPainted(false);
@@ -115,7 +113,6 @@ public class PaymentPanel extends JPanel {
     private void setReadOnly(RoundedTextField field) {
         field.setEditable(false);
         field.setFocusable(false);
-        field.setBackground(new Color(245, 245, 245));
         field.setForeground(Color.DARK_GRAY);
     }
 

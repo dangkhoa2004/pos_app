@@ -9,13 +9,18 @@ import pos_app.models.AuditLog;
 import pos_app.util.DatabaseConnection;
 
 /**
- * CustomerDAO dùng để thao tác với bảng customers trong hệ thống POS.
+ * Lớp CustomerDAO dùng để thao tác với bảng <b>customers</b> trong hệ thống
+ * POS.
  *
- * Cung cấp các chức năng: - Lấy danh sách khách hàng - Thêm, sửa, xóa khách
- * hàng (có ghi AuditLog)
+ * Cung cấp các chức năng:
+ * <ul>
+ * <li>Lấy danh sách khách hàng</li>
+ * <li>Thêm, cập nhật, xóa khách hàng (tự động ghi nhật ký thao tác
+ * AuditLog)</li>
+ * </ul>
  *
- * Sử dụng kết nối từ lớp DatabaseConnection. Ghi log với employeeId mặc định là
- * 1 (Admin)
+ * Kết nối CSDL thông qua lớp {@link DatabaseConnection}. Mặc định khi ghi log
+ * sử dụng employeeId = 1 (admin hệ thống).
  *
  * @author 04dkh
  */
@@ -25,9 +30,9 @@ public class CustomerDAO {
 
     /* ===================== READ ALL ===================== */
     /**
-     * Lấy danh sách toàn bộ khách hàng trong hệ thống.
+     * Lấy toàn bộ danh sách khách hàng trong hệ thống.
      *
-     * @return danh sách Customer
+     * @return Danh sách các đối tượng Customer.
      */
     public List<Customer> getAllCustomers() {
         List<Customer> list = new ArrayList<>();
@@ -39,17 +44,19 @@ public class CustomerDAO {
                 Customer c = mapResultSet(rs);
                 list.add(c);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return list;
     }
 
     /* ===================== CREATE ======================= */
     /**
-     * Thêm mới một khách hàng vào hệ thống và ghi log.
+     * Thêm mới một khách hàng vào hệ thống và ghi log thao tác.
      *
-     * @param c đối tượng Customer cần thêm
+     * @param c Đối tượng Customer cần thêm.
      */
     public void insertCustomer(Customer c) {
         String sql = "INSERT INTO customers(name, phone, email, address) VALUES (?, ?, ?, ?)";
@@ -86,16 +93,15 @@ public class CustomerDAO {
 
     /* ===================== UPDATE ======================= */
     /**
-     * Cập nhật thông tin khách hàng theo ID và ghi log.
+     * Cập nhật thông tin khách hàng theo ID và ghi log thao tác.
      *
-     * @param c đối tượng Customer cần cập nhật
+     * @param c Đối tượng Customer chứa thông tin mới.
      */
     public void updateCustomer(Customer c) {
         String sql = "UPDATE customers SET name = ?, phone = ?, email = ?, address = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Lấy dữ liệu cũ trước khi cập nhật
             Customer old = getCustomerById(c.getId());
 
             stmt.setString(1, c.getName());
@@ -123,16 +129,15 @@ public class CustomerDAO {
 
     /* ===================== DELETE ======================= */
     /**
-     * Xóa khách hàng theo ID và ghi log.
+     * Xóa khách hàng theo ID và ghi log thao tác.
      *
-     * @param id mã khách hàng cần xóa
+     * @param id Mã khách hàng cần xóa.
      */
     public void deleteCustomer(int id) {
         String sql = "DELETE FROM customers WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Lấy dữ liệu cũ trước khi xóa
             Customer old = getCustomerById(id);
 
             stmt.setInt(1, id);
@@ -158,8 +163,8 @@ public class CustomerDAO {
     /**
      * Lấy thông tin khách hàng theo ID.
      *
-     * @param id mã khách hàng
-     * @return đối tượng Customer nếu tồn tại, null nếu không tìm thấy
+     * @param id Mã khách hàng.
+     * @return Đối tượng Customer nếu tồn tại, null nếu không tìm thấy.
      */
     public Customer getCustomerById(int id) {
         String sql = "SELECT * FROM customers WHERE id = ?";
@@ -167,6 +172,7 @@ public class CustomerDAO {
 
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
+
             if (rs.next()) {
                 return mapResultSet(rs);
             }
@@ -174,15 +180,16 @@ public class CustomerDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
     /**
-     * Chuyển dữ liệu ResultSet thành đối tượng Customer.
+     * Chuyển dữ liệu từ ResultSet thành đối tượng Customer.
      *
-     * @param rs dòng dữ liệu SQL
-     * @return đối tượng Customer
-     * @throws SQLException nếu có lỗi dữ liệu
+     * @param rs Dòng kết quả từ truy vấn SQL.
+     * @return Đối tượng Customer tương ứng.
+     * @throws SQLException nếu có lỗi trong quá trình truy xuất dữ liệu.
      */
     private Customer mapResultSet(ResultSet rs) throws SQLException {
         return new Customer(

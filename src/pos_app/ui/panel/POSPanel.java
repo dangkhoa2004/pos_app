@@ -30,6 +30,7 @@ public class POSPanel extends JPanel {
         add(buildBottomButtons(), BorderLayout.SOUTH);
         addNewOrderTab();
         paymentPanel.setOnPayment(() -> handlePayment());
+        setComponentBackgroundWhite(this);
     }
 
     private JPanel buildTopBar() {
@@ -326,4 +327,20 @@ public class POSPanel extends JPanel {
             }
         }
     }
+
+    private void setComponentBackgroundWhite(Component component) {
+        if (component instanceof JPanel || component instanceof JScrollPane || component instanceof JTabbedPane) {
+            component.setBackground(Color.WHITE);
+        }
+
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
+                // Trừ JTextField và JButton
+                if (!(child instanceof JTextField) && !(child instanceof JButton)) {
+                    setComponentBackgroundWhite(child);
+                }
+            }
+        }
+    }
+
 }

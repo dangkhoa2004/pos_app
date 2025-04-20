@@ -1,14 +1,17 @@
 package pos_app.ui.panel;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import pos_app.models.Product;
+
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Giao diện giỏ hàng trong POS với nền trắng, font đồng bộ và tự động cập nhật
+ * khi thay đổi.
+ */
 public class OrderTabPanel extends JPanel {
 
     private final DefaultTableModel model = new DefaultTableModel(
@@ -22,27 +25,31 @@ public class OrderTabPanel extends JPanel {
         setBorder(BorderFactory.createTitledBorder("Giỏ hàng"));
         setBackground(Color.WHITE);
 
+        // === Cài đặt bảng ===
         table.setRowHeight(38);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        table.setIntercellSpacing(new Dimension(10, 10));
-        table.setShowGrid(true);
-        table.setGridColor(new Color(230, 230, 230));
-        table.setFillsViewportHeight(true);
         table.setBackground(Color.WHITE);
         table.setForeground(Color.BLACK);
+        table.setFillsViewportHeight(true);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setIntercellSpacing(new Dimension(10, 10));
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        // === Căn giữa nội dung ===
+        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
+        center.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(center);
         }
 
+        // === Header trắng và nổi bật ===
         JTableHeader header = table.getTableHeader();
         header.setBackground(Color.WHITE);
         header.setForeground(Color.DARK_GRAY);
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         header.setOpaque(true);
 
+        // === ScrollPane ===
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         scroll.getViewport().setBackground(Color.WHITE);
@@ -69,7 +76,6 @@ public class OrderTabPanel extends JPanel {
                 return;
             }
         }
-
         model.addRow(new Object[]{
             p.getId(),
             p.getName(),
@@ -112,16 +118,14 @@ public class OrderTabPanel extends JPanel {
     }
 
     public List<Product> getCartItems() {
-        List<Product> listCart = new ArrayList<>();
+        List<Product> list = new ArrayList<>();
         for (int i = 0; i < model.getRowCount(); i++) {
             int id = (int) model.getValueAt(i, 0);
             String name = (String) model.getValueAt(i, 1);
             int quantity = (int) model.getValueAt(i, 2);
             double price = (double) model.getValueAt(i, 3);
-
-            listCart.add(new Product(id, name, price, quantity));
+            list.add(new Product(id, name, price, quantity));
         }
-        return listCart;
+        return list;
     }
-
 }

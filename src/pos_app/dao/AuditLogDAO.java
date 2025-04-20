@@ -1,38 +1,40 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package pos_app.dao;
 
 import pos_app.models.AuditLog;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * AuditLogDAO dùng để thao tác với bảng audit_logs trong cơ sở dữ liệu. Ghi lại
- * các hành động của người dùng như thêm, sửa, xóa, đăng nhập, đăng xuất, v.v.
+ * Lớp AuditLogDAO dùng để thao tác với bảng <b>audit_logs</b> trong cơ sở dữ
+ * liệu.
  *
- * @author 04dkh
+ * Bảng này ghi lại toàn bộ hành động của người dùng trong hệ thống như: thêm,
+ * sửa, xóa dữ liệu; đăng nhập, đăng xuất, và các thao tác khác liên quan đến
+ * bảng dữ liệu chính.
+ *
+ * Các hành động sẽ được hiển thị trong giao diện "TerminalPanel" hoặc xuất ra
+ * file log.
  */
 public class AuditLogDAO {
 
-    private Connection conn;
+    private final Connection conn;
 
     /**
-     * Khởi tạo DAO với kết nối cơ sở dữ liệu.
+     * Khởi tạo đối tượng DAO với kết nối cơ sở dữ liệu.
      *
-     * @param conn Đối tượng Connection đang kết nối đến cơ sở dữ liệu.
+     * @param conn Đối tượng Connection đang mở.
      */
     public AuditLogDAO(Connection conn) {
         this.conn = conn;
     }
 
     /**
-     * Ghi một bản ghi vào bảng audit_logs để lưu thông tin thao tác của người
-     * dùng.
+     * Ghi một bản ghi log vào bảng <b>audit_logs</b>, lưu lại thông tin thao
+     * tác của người dùng.
      *
-     * @param log Đối tượng AuditLog chứa thông tin thao tác cần ghi.
+     * @param log Đối tượng AuditLog chứa đầy đủ thông tin hành động cần ghi.
      * @return true nếu ghi thành công, false nếu có lỗi xảy ra.
      */
     public boolean insertAuditLog(AuditLog log) {
@@ -50,5 +52,42 @@ public class AuditLogDAO {
             System.err.println("Lỗi ghi Audit Log: " + e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Lấy danh sách toàn bộ bản ghi từ bảng <b>audit_logs</b>, sắp xếp theo
+     * thời gian giảm dần (mới nhất trước).
+     *
+     * @return Danh sách các đối tượng AuditLog đã ghi nhận.
+     */
+    public List<AuditLog> getAllAuditLogs() {
+        List<AuditLog> logs = new ArrayList<>();
+        String sql = "SELECT * FROM audit_logs ORDER BY id DESC";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                AuditLog log = new AuditLog();
+                log.setId(rs.getInt("id"));
+                log.setEmployeeId(rs.getInt("employee_id"));
+                log.setActionType(rs.getString("action_type"));
+                log.setTableName(rs.getString("table_name"));
+                log.setRecordId(rs.getInt("record_id"));
+                log.setOldData(rs.getString("old_data"));
+                log.setNewData(rs.getString("new_data"));
+
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                if (createdAt != null) {
+                    log.setCreatedAt(createdAt.toLocalDateTime());
+                }
+
+                logs.add(log);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy danh sách Audit Log: " + e.getMessage());
+        }
+
+        return logs;
     }
 }

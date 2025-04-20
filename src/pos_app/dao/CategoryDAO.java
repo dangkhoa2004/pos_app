@@ -9,13 +9,17 @@ import pos_app.models.AuditLog;
 import pos_app.util.DatabaseConnection;
 
 /**
- * CategoryDAO dùng để thao tác với bảng categories trong hệ thống POS.
+ * Lớp CategoryDAO dùng để thao tác với bảng <b>categories</b> trong hệ thống
+ * POS.
  *
- * Cung cấp các chức năng: - Lấy danh sách danh mục sản phẩm - Thêm, sửa, xóa
- * danh mục (có ghi nhật ký thao tác)
+ * Cung cấp các chức năng:
+ * <ul>
+ * <li>Lấy danh sách danh mục sản phẩm</li>
+ * <li>Thêm, cập nhật, xóa danh mục (tự động ghi nhật ký thao tác AuditLog)</li>
+ * </ul>
  *
- * Sử dụng kết nối từ lớp DatabaseConnection. Sử dụng employeeId mặc định là 1
- * (Admin)
+ * Kết nối cơ sở dữ liệu thông qua lớp {@link DatabaseConnection}. Khi ghi log
+ * thao tác, mặc định sử dụng employeeId = 1 (admin hệ thống).
  *
  * @author 04dkh
  */
@@ -24,6 +28,11 @@ public class CategoryDAO {
     private final int defaultEmployeeId = 1;
 
     /* ===================== READ ALL ===================== */
+    /**
+     * Lấy toàn bộ danh mục sản phẩm từ bảng categories.
+     *
+     * @return Danh sách đối tượng Category.
+     */
     public List<Category> getAllCategories() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories";
@@ -38,6 +47,7 @@ public class CategoryDAO {
                 );
                 list.add(c);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -46,6 +56,11 @@ public class CategoryDAO {
     }
 
     /* ===================== CREATE ======================= */
+    /**
+     * Thêm mới một danh mục sản phẩm vào hệ thống và ghi nhật ký thao tác.
+     *
+     * @param c Đối tượng Category cần thêm.
+     */
     public void insertCategory(Category c) {
         String sql = "INSERT INTO categories(name, description) VALUES (?, ?)";
 
@@ -61,7 +76,6 @@ public class CategoryDAO {
                 }
             }
 
-            // Ghi audit log
             Gson gson = new Gson();
             AuditLog log = new AuditLog(
                     defaultEmployeeId,
@@ -79,12 +93,16 @@ public class CategoryDAO {
     }
 
     /* ===================== UPDATE ======================= */
+    /**
+     * Cập nhật thông tin một danh mục theo ID và ghi nhật ký thao tác.
+     *
+     * @param c Đối tượng Category chứa thông tin cần cập nhật.
+     */
     public void updateCategory(Category c) {
         String sql = "UPDATE categories SET name = ?, description = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Lấy dữ liệu cũ
             Category old = getCategoryById(c.getId());
 
             stmt.setString(1, c.getName());
@@ -92,7 +110,6 @@ public class CategoryDAO {
             stmt.setInt(3, c.getId());
             stmt.executeUpdate();
 
-            // Ghi audit log
             Gson gson = new Gson();
             AuditLog log = new AuditLog(
                     defaultEmployeeId,
@@ -110,18 +127,21 @@ public class CategoryDAO {
     }
 
     /* ===================== DELETE ======================= */
+    /**
+     * Xóa một danh mục sản phẩm theo ID và ghi nhật ký thao tác.
+     *
+     * @param id Mã danh mục cần xóa.
+     */
     public void deleteCategory(int id) {
         String sql = "DELETE FROM categories WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Lấy dữ liệu cũ
             Category old = getCategoryById(id);
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
 
-            // Ghi audit log
             Gson gson = new Gson();
             AuditLog log = new AuditLog(
                     defaultEmployeeId,
@@ -140,10 +160,10 @@ public class CategoryDAO {
 
     /* ===================== SUPPORT ======================= */
     /**
-     * Lấy thông tin danh mục theo ID.
+     * Lấy thông tin một danh mục theo ID.
      *
-     * @param id mã danh mục
-     * @return đối tượng Category nếu tồn tại
+     * @param id Mã danh mục cần tìm.
+     * @return Đối tượng Category nếu tồn tại, null nếu không tìm thấy.
      */
     public Category getCategoryById(int id) {
         String sql = "SELECT * FROM categories WHERE id = ?";
@@ -160,6 +180,7 @@ public class CategoryDAO {
                         rs.getString("description")
                 );
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -169,6 +169,7 @@ CREATE TABLE audit_logs (
     action_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     old_data TEXT,
     new_data TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (employee_id) REFERENCES employees(id)
 );
 
@@ -245,3 +246,9 @@ INSERT INTO stock_out(product_id, quantity, note)
 VALUES 
   (1, 5, 'Xuất cho chi nhánh 2'),
   (3, 2, 'Xuất nhầm cần kiểm tra');
+
+-- Lịch sử thao tác
+INSERT INTO audit_logs(employee_id, action_type, table_name, record_id, action_time, old_data, new_data, created_at)
+VALUES 
+  (1, 'INSERT', 'products', 4, '2025-04-20 20:55:20', null, '{"id":4,"barcode":"BC439689289","name":"Khoai Tây","price":35000.0,"quantity":100,"imagePath":"khoaitay.png}', '2025-04-20 20:55:20'),
+  (1, 'DELETE', 'products', 4, '2025-04-20 20:55:20', '{"id":4,"barcode":"BC439689289","name":"Khoai Tây","price":35000.0,"quantity":100,"imagePath":"khoaitay.png}', null, '2025-04-20 20:59:20');

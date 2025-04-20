@@ -54,7 +54,7 @@ public class CategoryDialog extends JDialog {
         setLayout(new BorderLayout(10, 10));
 
         // Cấu hình bảng
-        table.setRowHeight(28);
+        table.setRowHeight(36);
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
