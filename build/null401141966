@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.10.14
+Created-By: 24.0.1+9-30 (Oracle Corporation)
+Codebase: *
+Application-Library-Allowable-Codebase: *
+Caller-Allowable-Codebase: *
+Permissions: sandbox
+Application-Name: POS_APP
+

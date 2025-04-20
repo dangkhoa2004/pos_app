@@ -1,21 +1,32 @@
 # 🛒 POS_App – Ứng dụng Quản lý Bán hàng
 
-[![🌐 English](https://img.shields.io/badge/Language-English-blue)](./README_EN.md) [![🌐 Tiếng Việt](https://img.shields.io/badge/Ngôn_ngữ-Tiếng_Việt-red)](./README.md)
+[![🌐 English](https://img.shields.io/badge/Language-English-blue)](./README_EN.md) [![🌐 Tiếng Việt](https://img.shields.io/badge/Ngôn_ngữ-Tiếng_Việt-red)](./README.md)  
+![GitHub stars](https://img.shields.io/github/stars/dangkhoa2004/pos_app?style=social)
+![GitHub forks](https://img.shields.io/github/forks/dangkhoa2004/pos_app?style=social)
 
 Một ứng dụng quản lý bán hàng toàn diện phát triển bằng **Java Swing**, thiết kế theo mô hình **MVC + UI Layered**, hỗ trợ đầy đủ các tính năng quản lý sản phẩm, hóa đơn, khách hàng, tồn kho và nhân viên. Giao diện hiện đại, dễ sử dụng, có thể mở rộng.
 
 ---
 
-## 🔧 Công nghệ & Môi trường phát triển
+## 🧰 Công nghệ & Môi trường phát triển
 
-| Thành phần     | Thông tin                                         |
-| -------------- | ------------------------------------------------- |
-| **Ngôn ngữ**   | Java 24                                           |
-| **IDE**        | NetBeans 25 (Apache NetBeans)                     |
-| **UI Toolkit** | Java Swing + FlatLaf                              |
-| **Database**   | MySQL + JDBC (mysql-connector-j)                  |
-| **Mô hình**    | DAO – Model – View – Component Separation (MVC++) |
-| **Theme**      | FlatLaf Light / IntelliJ / Dark tùy chọn          |
+| 🔧 Thành phần     | ⚙️ Thông tin                                      |
+| ----------------- | ------------------------------------------------- |
+| 🖥️ **Ngôn ngữ**   | Java 24                                           |
+| 🧠 **IDE**        | NetBeans 25 (Apache NetBeans)                     |
+| 🎨 **UI Toolkit** | Java Swing + FlatLaf                              |
+| 🗃️ **Database**   | MySQL + JDBC (mysql-connector-j)                  |
+| 🧩 **Mô hình**    | DAO – Model – View – Component Separation (MVC++) |
+| 🖌️ **Theme**      | FlatLaf Light                                     |
+
+---
+
+## 💻 Yêu cầu hệ thống
+
+- ☕ Java JDK 17 trở lên (khuyến nghị Java 21+)
+- 💡 NetBeans 15+ hoặc IntelliJ có hỗ trợ Swing
+- 🛢️ MySQL Server 5.7+ hoặc 8.x
+- 🧑‍💻 Tương thích với Windows / macOS / Linux
 
 ---
 
@@ -26,100 +37,95 @@ pos_app/
 ├── dao/              # Truy vấn và xử lý dữ liệu (Database Access)
 ├── icons/            # Icon SVG/PNG dùng trong giao diện
 ├── models/           # Lớp mô hình: Product, Invoice, Customer, ...
+├── pictures/         # Lưu hình ảnh tĩnh phục vụ giao diện
+├── sql/              # Chứa các file SQL hoặc thao tác khởi tạo CSDL
 ├── ui.components/    # UI tái sử dụng: Button, Sidebar, Header,...
 ├── ui.dialog/        # Dialog nhập/chỉnh sửa dữ liệu (Form)
 ├── ui.panel/         # Giao diện từng chức năng: Sản phẩm, Hóa đơn...
 ├── ui.table/         # Tùy biến bảng: CellRenderer, ButtonEditor
-├── util/             # Tiện ích chung: DateHelper, IconUtil,...
+├── util/             # Tiện ích chung: DatabaseConnection, IconUtil,...
 ├── view/             # Giao diện chính (MainFrame.java)
+└── test/             # Gói test đơn vị (unit test)
 ```
 
 ---
 
-## 🧩 Thư viện sử dụng
+## 📦 Thư viện sử dụng
 
-| Tên Thư viện            | Mô tả                                                                 |
-| ----------------------- | ---------------------------------------------------------------------- |
-| `FlatLaf`               | Giao diện hiện đại, hỗ trợ SVG, Dark mode, IntelliJ Theme             |
-| `flatlaf-extras`        | Tuỳ chỉnh theme và icon từ SVG dễ dàng                                |
-| `darklaf-core`          | (Tuỳ chọn) Hiệu ứng shadow, nền blur                                  |
-| `darklaf-utils`         | (Đi kèm) Công cụ hỗ trợ cho darklaf-core                              |
-| `darklaf-property-loader` | (Đi kèm) Hỗ trợ tải cấu hình dark theme                              |
-| `mysql-connector-j`     | Kết nối MySQL (JDBC)                                                   |
-| `protobuf-java`         | Dự phòng: lưu dữ liệu dạng nhị phân                                   |
-| `jsvg`                  | Hiển thị icon SVG cho giao diện                                        |
-| `java-se` (`core-3.5.3.jar`, `javase-3.5.3.jar`) | Thư viện xử lý hình ảnh / webcam / barcode                    |
-| `webcam-capture`        | Tích hợp webcam để quét barcode, QR hoặc chụp ảnh                     |
-| `slf4j-api`, `slf4j-simple` | Ghi log hệ thống dạng đơn giản                                      |
-| `bridj`                 | Dành riêng cho Windows, hỗ trợ native call cho webcam                 |
-| `poi`, `poi-ooxml`      | Đọc/Ghi file Excel (xuất báo cáo, thống kê)                           |
-| `jfreechart`            | Biểu đồ Pie, Bar (tab Thống kê)                                       |
-| `junit`                 | Unit test cho DAO và các module quan trọng                            |
+| 📚 Thư viện                                | 📝 Mô tả                                                  |
+| ------------------------------------------ | --------------------------------------------------------- |
+| `FlatLaf`                                  | Giao diện hiện đại, hỗ trợ SVG, Dark mode, IntelliJ Theme |
+| `flatlaf-extras`                           | Tuỳ chỉnh theme và icon từ SVG dễ dàng                    |
+| `darklaf-core`                             | (Tuỳ chọn) Hiệu ứng shadow, nền blur                      |
+| `darklaf-utils`, `darklaf-property-loader` | Công cụ hỗ trợ cấu hình Dark Theme                        |
+| `mysql-connector-j`                        | Kết nối MySQL (JDBC)                                      |
+| `protobuf-java`                            | Dự phòng: lưu dữ liệu dạng nhị phân                       |
+| `jsvg`                                     | Hiển thị icon SVG cho giao diện                           |
+| `java-se` (`core-3.5.3`, `javase-3.5.3`)   | Xử lý webcam, hình ảnh, barcode                           |
+| `webcam-capture`                           | Tích hợp webcam, quét mã vạch / QR                        |
+| `slf4j-api`, `slf4j-simple`                | Ghi log hệ thống dạng đơn giản                            |
+| `bridj`                                    | Gọi native API trên Windows cho webcam                    |
+| `gson`                                     | Chuyển đổi giữa JSON và đối tượng Java                    |
 
 ---
 
 ## 🖥️ Tính năng chính
 
-| Chức năng                 | Mô tả                                                                |
-| ------------------------- | -------------------------------------------------------------------- |
-| 📦 Quản lý sản phẩm       | CRUD sản phẩm, cập nhật số lượng, giá, tình trạng                    |
-| 👤 Quản lý khách hàng     | Thêm/sửa thông tin khách, phân loại nhóm khách                       |
-| 🧾 Quản lý hóa đơn        | Tạo hóa đơn, xem chi tiết, in và tìm kiếm hóa đơn                    |
-| 📊 Thống kê doanh thu     | Tổng hợp bán hàng theo ngày/tháng, biểu đồ Pie/Bar (đang phát triển) |
-| 🏪 Quản lý tồn kho        | Theo dõi tồn kho, nhập/xuất kho                                      |
-| 🧑‍💼 Nhân viên & phân quyền | Phân quyền theo vai trò (Admin, Staff), quản lý nhân viên            |
-| ⚙️ Cài đặt hệ thống       | Đổi theme, thông tin cửa hàng (placeholder)                          |
+| 🧩 Chức năng               | 📌 Mô tả                                                            |
+| -------------------------- | ------------------------------------------------------------------- |
+| 🛒 **Bán hàng**            | Giao diện POS, thêm sản phẩm vào giỏ hàng, thanh toán, in hóa đơn   |
+| 📦 **Quản lý sản phẩm**    | CRUD sản phẩm, cập nhật số lượng, giá, trạng thái, loại sản phẩm    |
+| 👤 **Khách hàng**          | Quản lý thông tin khách hàng, phân loại nhóm khách hàng             |
+| 🧾 **Hóa đơn**             | Danh sách hóa đơn, xem chi tiết, in và tìm kiếm hóa đơn             |
+| 📊 **Thống kê**            | Biểu đồ Pie/Bar doanh thu theo ngày, tháng, năm _(đang phát triển)_ |
+| 🚚 **Nhập / Xuất kho**     | Quản lý tồn kho, tạo phiếu nhập/xuất hàng                           |
+| 👔 **Nhân viên / Chức vụ** | Quản lý tài khoản, phân quyền theo vai trò (Admin, Staff)           |
+| 📋 **Bảng điều khiển**     | Tổng hợp các log cập nhật hệ thống từ máy POS                       |
+| ⚙️ **Cài đặt hệ thống**    | Cấu hình theme, logo, thông tin cửa hàng, đơn vị tiền tệ, v.v.      |
 
 ---
 
 ## ✅ Hướng dẫn chạy ứng dụng
 
-1. **Clone dự án về máy:**
+1. **Clone dự án:**
 
    ```bash
    git clone https://github.com/dangkhoa2004/pos_app.git
    ```
 
 2. **Mở bằng IDE:**
+   👉 NetBeans 25 _(ưu tiên)_ hoặc IntelliJ (đã cấu hình Maven/Ant)
 
-   - Sử dụng **NetBeans 25** _(ưu tiên)_ hoặc **IntelliJ IDEA** (nếu đã cấu hình Maven hoặc Ant tương ứng).
+3. **Cài MySQL & tạo CSDL:**
 
-3. **Cài đặt cơ sở dữ liệu MySQL:**
+   ```sql
+   CREATE DATABASE pos_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
 
-   - Đảm bảo bạn đã cài **MySQL Server**, ví dụ: `localhost:3306`.
-   - Tạo database có tên phù hợp, ví dụ:
-     ```sql
-     CREATE DATABASE pos_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-     ```
-   - Import file `.sql` (nếu có) từ thư mục `Database/pos_app.sql` hoặc theo hướng dẫn trong repo.
+   Sau đó import `pos_app.sql` từ thư mục `/sql`
 
-4. **Cập nhật thông tin kết nối MySQL trong `DBConnection.java`:**
+4. **Cấu hình kết nối trong `DBConnection.java`:**
 
    ```java
    private static final String URL = "jdbc:mysql://localhost:3306/pos_app";
    private static final String USER = "root";
-   private static final String PASSWORD = ""; // đổi lại mật khẩu phù hợp
+   private static final String PASSWORD = ""; // đổi theo máy bạn
    ```
 
-5. **Chạy ứng dụng:**
+5. **Chạy file `MainFrame.java`** để mở giao diện chính.
 
-   - Tìm và chạy file `MainFrame.java` trong thư mục `view/`.
-   - Giao diện chính sẽ được khởi tạo cùng sidebar và các module chức năng.
-
-6. ✅ **Lưu ý:**
-   - Nếu xuất hiện lỗi `ClassNotFoundException`, hãy kiểm tra lại driver MySQL JDBC (`mysql-connector-j` đã thêm vào `libraries` chưa).
-   - Cần dùng `UTF-8` để hiển thị tiếng Việt chính xác.
-   - Một số tính năng như thống kê, phân quyền có thể đang trong quá trình phát triển.
+6. **Lưu ý:**
+   - Kiểm tra thư viện JDBC nếu có lỗi `ClassNotFoundException`
+   - Dùng UTF-8 để hiển thị tiếng Việt chính xác
 
 ---
 
 ## 📌 Ghi chú phát triển
 
-- Toàn bộ icon lưu tại `src/pos_app/icons` với định dạng SVG, tự động scale đẹp.
-- Để thêm tính năng mới:  
-  👉 Thêm Panel mới trong `ui.panel` → Gọi từ `SideBarMenu.java`
-- Các tính năng chưa hoàn thiện sẽ hiển thị `JOptionPane` thông báo
-- **Thiết kế hướng mở rộng** – có thể tích hợp tính năng in hóa đơn PDF, đồng bộ cloud, v.v.
+- Tất cả icon dạng `.svg` lưu trong `icons/`
+- Module mới → Tạo `Panel` trong `ui.panel` → Gọi từ `SideBarMenu`
+- Các chức năng đang phát triển sẽ hiện `JOptionPane`
+- Thiết kế mở rộng: Có thể tích hợp in hóa đơn PDF, cloud sync...
 
 ---
 
@@ -127,21 +133,77 @@ pos_app/
 
 ### 🌙 Giao diện FlatLaf Dark
 
-> ![Dark Mode Sidebar](./src/pos_app/icons/sidebar_dark_preview.png)
+> ⏳ _Chưa ra mắt_
+
+<!-- ![Dark Mode Sidebar](./src/pos_app/icons/sidebar_dark_preview.png) -->
 
 ### ☀️ Giao diện FlatLaf Light
 
-> ![Light Mode Main](./src/pos_app/icons/main_light_preview.png)
+> ⏳ _Chưa ra mắt_
+
+<!-- ![Light Mode Main](./src/pos_app/icons/main_light_preview.png) -->
 
 ---
 
-## 🔮 Kế hoạch mở rộng (Roadmap)
+## 🔮 Kế hoạch mở rộng
 
-- [ ] Thêm chức năng **in hóa đơn PDF**
-- [ ] Tích hợp **API Google Sheets** để xuất dữ liệu nhanh
-- [ ] Tự động backup định kỳ
-- [ ] Tạo trang Login + phân quyền mạnh mẽ
-- [ ] Đồng bộ dữ liệu với Firebase (tùy chọn)
+- [ ] 🧾 In hóa đơn ra file PDF
+- [ ] 📤 Tích hợp API Google Sheets
+- [ ] 💾 Backup định kỳ tự động
+- [ ] 🔐 Login + phân quyền nâng cao
+- [ ] ☁️ Đồng bộ dữ liệu Firebase
+
+---
+
+## 🤝 Đóng góp
+
+Chúng tôi hoan nghênh mọi đóng góp!
+
+- 🛠 Fork repo
+- 🌱 Tạo nhánh `feature/<ten-chuc-nang>`
+- 📥 Gửi Pull Request kèm mô tả rõ ràng
+
+---
+
+## 📚 Tài liệu kỹ thuật
+
+- 🧩 **Cấu trúc & Dữ liệu mẫu CSDL:**
+
+  ```sql
+  -- Tạo cơ sở dữ liệu
+  CREATE DATABASE IF NOT EXISTS pos_app;
+  USE pos_app;
+
+  CREATE TABLE roles (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(50) NOT NULL
+  );
+
+  CREATE TABLE employees (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(100),
+      username VARCHAR(50) UNIQUE,
+      password VARCHAR(255),
+      role_id INT,
+      FOREIGN KEY (role_id) REFERENCES roles(id)
+  );
+
+  ... ... ...
+  ```
+
+[Xem toàn bộ file SQL](./src/pos_app/sql/pos_app.sql)
+
+- 🧩 **Sơ đồ CSDL trực quan:**
+
+  ![Sơ đồ CSDL](./src/pos_app/sql/db_schema.png)
+
+- 📦 **Cách tạo module mới:** _(sẽ có trong Wiki)_
+
+---
+
+## 📜 Giấy phép
+
+Dự án hiện **chưa công khai giấy phép**. Nếu bạn muốn sử dụng lại mã nguồn, vui lòng liên hệ tác giả để được cấp phép rõ ràng.
 
 ---
 
@@ -150,4 +212,4 @@ pos_app/
 - 👨‍💻 **Tác giả:** Đăng Khoa
 - 📧 **Email:** 04dkhoa04@gmail.com
 - 💬 **Facebook:** [Đăng Khoa](https://www.facebook.com/dangkh0a2004)
-- ☕ Bạn thấy hay? Hãy ⭐ cho repo này nhé!
+- ⭐ Nếu thấy hữu ích, hãy để lại một ngôi sao cho repo này nhé!
