@@ -1,9 +1,5 @@
 package pos_app.view;
 
-/**
- *
- * @author 04dkh
- */
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import javax.swing.*;
 import java.awt.*;
@@ -13,12 +9,20 @@ import pos_app.models.Employee;
 import pos_app.util.IconUtil;
 import pos_app.util.Session;
 
+/**
+ * Lớp LoginFrame cung cấp giao diện đăng nhập cho hệ thống POS. Người dùng nhập
+ * thông tin tài khoản, hệ thống sẽ xác thực và chuyển sang MainFrame nếu thành
+ * công.
+ */
 public class LoginFrame extends JFrame {
 
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JButton btnLogin;
 
+    /**
+     * Khởi tạo giao diện đăng nhập và các thành phần hiển thị.
+     */
     public LoginFrame() {
         try {
             UIManager.setLookAndFeel(new FlatIntelliJLaf());
@@ -97,6 +101,13 @@ public class LoginFrame extends JFrame {
         add(rightPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Tạo một hàng nhập liệu gồm nhãn và trường nhập.
+     *
+     * @param labelText tên nhãn hiển thị
+     * @param inputField trường nhập liệu (JTextField hoặc JPasswordField)
+     * @return JPanel chứa nhãn và trường nhập
+     */
     private JPanel createInputField(String labelText, JComponent inputField) {
         JPanel container = new JPanel(new BorderLayout(5, 5));
         container.setOpaque(false);
@@ -117,6 +128,12 @@ public class LoginFrame extends JFrame {
         return container;
     }
 
+    /**
+     * Xử lý sự kiện khi nhấn nút đăng nhập. Nếu thông tin hợp lệ → ghi nhận
+     * phiên làm việc và mở MainFrame. Nếu sai → hiển thị thông báo lỗi.
+     *
+     * @param e sự kiện ActionEvent
+     */
     private void handleLogin(ActionEvent e) {
         String username = txtUsername.getText();
         String password = new String(txtPassword.getPassword());
@@ -124,7 +141,21 @@ public class LoginFrame extends JFrame {
         Employee emp = EmployeeDAO.checkLogin(username, password);
         if (emp != null) {
             Session.login(emp);
-            Session.saveAccount(username, password);
+
+            try {
+                String token = java.util.UUID.randomUUID().toString();
+                pos_app.models.UserSession session = new pos_app.models.UserSession();
+                session.setEmployeeId(emp.getId());
+                session.setSessionToken(token);
+                session.setIpAddress(Session.getIPAddress());
+                session.setDeviceInfo(System.getProperty("os.name"));
+                new pos_app.dao.UserSessionDAO().createSession(session);
+
+                Session.saveAccount(username, password);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
             JOptionPane.showMessageDialog(this, "Đăng nhập thành công!");
             dispose();
             new MainFrame().setVisible(true);
@@ -133,6 +164,11 @@ public class LoginFrame extends JFrame {
         }
     }
 
+    /**
+     * Điểm khởi chạy nếu chạy trực tiếp frame đăng nhập này.
+     *
+     * @param args không sử dụng
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }

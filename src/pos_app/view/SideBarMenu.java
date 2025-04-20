@@ -1,34 +1,64 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package pos_app.view;
 
-/**
- *
- * @author 04dkh
- */
 import pos_app.ui.components.RoundedPanel;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.function.Consumer;
 import javax.swing.*;
-import pos_app.ui.panel.CustomerPanel;
-import pos_app.ui.panel.EmployeePanel;
-import pos_app.ui.panel.InvoicePanel;
-import pos_app.ui.panel.POSPanel;
-import pos_app.ui.panel.ProductPanel;
-import pos_app.ui.panel.StockPanel;
+import pos_app.ui.panel.*;
 import pos_app.util.IconUtil;
 import pos_app.util.Session;
 
+/**
+ * Lớp SideBarMenu tạo menu bên trái cho giao diện chính của ứng dụng POS.
+ *
+ * Menu gồm các mục như: Bán hàng, Quản lý sản phẩm, Khách hàng, Hóa đơn,
+ * Nhập/xuất kho, Nhân viên... mỗi mục liên kết với một JPanel cụ thể.
+ *
+ * Tính năng: - Hiển thị logo phía trên - Tạo danh sách mục menu có biểu tượng
+ * SVG - Hover hiệu ứng màu khi di chuột - Xử lý nút "Đăng xuất" để reset phiên
+ * làm việc
+ *
+ * Cần truyền: - `onMenuClick`: callback xử lý khi click menu, truyền `JPanel`
+ * tương ứng - `onLogout`: hành động logout (thường là show lại màn hình login)
+ *
+ * Ví dụ khởi tạo:
+ * <pre>
+ *     SideBarMenu sidebar = new SideBarMenu(panel -> mainFrame.setContent(panel), () -> showLogin());
+ * </pre>
+ *
+ * @author 04dkh
+ */
 public class SideBarMenu extends JPanel {
 
+    /**
+     * Màu nền khi hover menu
+     */
     private static final Color HOVER_COLOR = new Color(220, 235, 255);
+
+    /**
+     * Màu nền mặc định
+     */
     private static final Color NORMAL_COLOR = Color.WHITE;
 
+    /**
+     * Khởi tạo menu bên trái với các chức năng chính.
+     *
+     * @param onMenuClick callback khi người dùng click vào 1 mục (truyền
+     * JPanel)
+     * @param onLogout callback khi người dùng chọn "Đăng xuất"
+     */
     public SideBarMenu(Consumer<JPanel> onMenuClick, Runnable onLogout) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
         setPreferredSize(new Dimension(230, 0));
         setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
+        // Logo
         JLabel logo = new JLabel();
         logo.setPreferredSize(new Dimension(180, 180));
         logo.setMaximumSize(new Dimension(180, 180));
@@ -38,17 +68,20 @@ public class SideBarMenu extends JPanel {
         add(logo);
         add(Box.createRigidArea(new Dimension(0, 30)));
 
-        addMenu("Bán Hàng", IconUtil.loadSvg("ad_product.svg", 20), new POSPanel(), onMenuClick);
+        // Các mục menu
+        addMenu("Bán Hàng", IconUtil.loadSvg("shopping-cart.svg", 20), new POSPanel(), onMenuClick);
         addMenu("Quản lý sản phẩm", IconUtil.loadSvg("ad_product.svg", 20), new ProductPanel(), onMenuClick);
         addMenu("Khách hàng", IconUtil.loadSvg("customer_service_agent.svg", 20), new CustomerPanel(), onMenuClick);
         addMenu("Hóa đơn", IconUtil.loadSvg("alternate_file.svg", 20), new InvoicePanel(), onMenuClick);
         addMenu("Thống kê", IconUtil.loadSvg("pie_chart.svg", 20), null, onMenuClick);
         addMenu("Nhập / Xuất kho", IconUtil.loadSvg("stock.svg", 20), new StockPanel(), onMenuClick);
         addMenu("Nhân viên / Chức vụ", IconUtil.loadSvg("employee-group-line.svg", 20), new EmployeePanel(), onMenuClick);
-        addMenu("Cài đặt hệ thống", IconUtil.loadSvg("cog.svg", 20), null, onMenuClick);
+        addMenu("Bảng điều khiển", IconUtil.loadSvg("terminal.svg", 20), null, onMenuClick);
+        addMenu("Cài đặt hệ thống", IconUtil.loadSvg("cog.svg", 20), new SettingsPanel(), onMenuClick);
 
         add(Box.createVerticalGlue());
 
+        // Nút đăng xuất
         JButton btnLogout = new JButton("Đăng xuất");
         btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnLogout.setMaximumSize(new Dimension(180, 40));
@@ -66,6 +99,14 @@ public class SideBarMenu extends JPanel {
         add(btnLogout);
     }
 
+    /**
+     * Tạo và thêm một mục menu vào danh sách.
+     *
+     * @param title tên hiển thị
+     * @param icon biểu tượng SVG hoặc PNG
+     * @param target panel sẽ hiển thị khi click (null nếu chưa phát triển)
+     * @param onClick callback gọi khi mục được chọn
+     */
     private void addMenu(String title, Icon icon, JPanel target, Consumer<JPanel> onClick) {
         RoundedPanel menuItem = new RoundedPanel(15);
         menuItem.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
@@ -81,6 +122,7 @@ public class SideBarMenu extends JPanel {
         menuItem.add(iconLabel);
         menuItem.add(textLabel);
 
+        // Hover + click
         menuItem.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -101,6 +143,7 @@ public class SideBarMenu extends JPanel {
                 }
             }
         });
+
         add(menuItem);
         add(Box.createRigidArea(new Dimension(0, 10)));
     }

@@ -1,9 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package pos_app.dao;
 
+import com.google.gson.Gson;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -15,20 +12,18 @@ import pos_app.util.DatabaseConnection;
  * InvoiceDAO dùng để thao tác dữ liệu hóa đơn trong hệ thống POS.
  *
  * Bao gồm các thao tác: - Lấy danh sách hóa đơn - Tìm chi tiết hóa đơn theo ID
- * - Thêm mới, cập nhật, xóa hóa đơn - Nạp chi tiết sản phẩm trong hóa đơn
+ * - Thêm mới, cập nhật, xóa hóa đơn - Ghi lịch sử thao tác vào bảng audit_logs
  *
- * Kết nối thông qua lớp DatabaseConnection.
+ * Sử dụng kết nối thông qua lớp DatabaseConnection. Mặc định employeeId = 1
+ * (admin)
  *
  * @author 04dkh
  */
 public class InvoiceDAO {
 
+    private final int defaultEmployeeId = 1;
+
     /* --------------------- LẤY DANH SÁCH --------------------- */
-    /**
-     * Lấy toàn bộ danh sách hóa đơn, không bao gồm chi tiết sản phẩm.
-     *
-     * @return danh sách hóa đơn
-     */
     public List<Invoice> getAllInvoices() {
         List<Invoice> list = new ArrayList<>();
         String sql = "SELECT * FROM invoices ORDER BY created_at DESC";
@@ -36,7 +31,7 @@ public class InvoiceDAO {
         try (Connection cn = DatabaseConnection.getConnection(); Statement st = cn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                list.add(toInvoice(rs, false)); // không nạp items
+                list.add(toInvoice(rs, false));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -44,13 +39,7 @@ public class InvoiceDAO {
         return list;
     }
 
-    /* ----------------------- TÌM CHI TIẾT -------------------- */
-    /**
-     * Tìm hóa đơn theo ID và nạp toàn bộ chi tiết sản phẩm đi kèm.
-     *
-     * @param id mã hóa đơn
-     * @return hóa đơn tương ứng, hoặc null nếu không tìm thấy
-     */
+    /* --------------------- TÌM CHI TIẾT ---------------------- */
     public Invoice findById(int id) {
         String sqlInv = "SELECT * FROM invoices WHERE id = ?";
         String sqlItm = "SELECT * FROM invoice_items WHERE invoice_id = ?";
@@ -78,15 +67,7 @@ public class InvoiceDAO {
         return null;
     }
 
-    /* ------------------------ THÊM MỚI ----------------------- */
-    /**
-     * Thêm mới một hóa đơn kèm theo chi tiết sản phẩm.
-     *
-     * Thực hiện trong một transaction.
-     *
-     * @param inv hóa đơn cần thêm
-     * @return true nếu thành công
-     */
+    /* ---------------------- THÊM MỚI -------------------------- */
     public boolean insertInvoice(Invoice inv) {
         String sqlInv = "INSERT INTO invoices (customer_id, employee_id, total, created_at) VALUES (?,?,?,?)";
         String sqlItm = "INSERT INTO invoice_items (invoice_id, product_id, quantity, unit_price) VALUES (?,?,?,?)";
@@ -94,6 +75,7 @@ public class InvoiceDAO {
         try (Connection cn = DatabaseConnection.getConnection()) {
             cn.setAutoCommit(false);
 
+            // 1. Thêm hóa đơn
             try (PreparedStatement psInv = cn.prepareStatement(sqlInv, Statement.RETURN_GENERATED_KEYS)) {
                 psInv.setInt(1, inv.getCustomerId());
                 psInv.setInt(2, inv.getEmployeeId());
@@ -108,6 +90,7 @@ public class InvoiceDAO {
                 }
             }
 
+            // 2. Thêm sản phẩm trong hóa đơn
             try (PreparedStatement psItm = cn.prepareStatement(sqlItm)) {
                 for (InvoiceItem it : inv.getItems()) {
                     psItm.setInt(1, inv.getId());
@@ -119,6 +102,18 @@ public class InvoiceDAO {
                 psItm.executeBatch();
             }
 
+            // 3. Ghi AuditLog
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(
+                    defaultEmployeeId,
+                    "INSERT",
+                    "invoices",
+                    inv.getId(),
+                    null,
+                    gson.toJson(inv)
+            );
+            new AuditLogDAO(cn).insertAuditLog(log);
+
             cn.commit();
             return true;
         } catch (Exception ex) {
@@ -127,15 +122,7 @@ public class InvoiceDAO {
         }
     }
 
-    /* ------------------------ CẬP NHẬT ----------------------- */
-    /**
-     * Cập nhật thông tin hóa đơn và toàn bộ chi tiết sản phẩm.
-     *
-     * Toàn bộ mục cũ sẽ bị xóa và thêm lại.
-     *
-     * @param inv hóa đơn cần cập nhật
-     * @return true nếu thành công
-     */
+    /* ------------------------ CẬP NHẬT ------------------------ */
     public boolean updateInvoice(Invoice inv) {
         String sqlUpdInv = "UPDATE invoices SET customer_id=?, employee_id=?, total=? WHERE id=?";
         String sqlDelItem = "DELETE FROM invoice_items WHERE invoice_id=?";
@@ -144,6 +131,10 @@ public class InvoiceDAO {
         try (Connection cn = DatabaseConnection.getConnection()) {
             cn.setAutoCommit(false);
 
+            // 1. Lưu dữ liệu cũ
+            Invoice old = findById(inv.getId());
+
+            // 2. Cập nhật hóa đơn
             try (PreparedStatement ps = cn.prepareStatement(sqlUpdInv)) {
                 ps.setInt(1, inv.getCustomerId());
                 ps.setInt(2, inv.getEmployeeId());
@@ -152,11 +143,13 @@ public class InvoiceDAO {
                 ps.executeUpdate();
             }
 
+            // 3. Xóa chi tiết cũ
             try (PreparedStatement psDel = cn.prepareStatement(sqlDelItem)) {
                 psDel.setInt(1, inv.getId());
                 psDel.executeUpdate();
             }
 
+            // 4. Thêm chi tiết mới
             try (PreparedStatement psAdd = cn.prepareStatement(sqlAddItem)) {
                 for (InvoiceItem it : inv.getItems()) {
                     psAdd.setInt(1, inv.getId());
@@ -168,6 +161,18 @@ public class InvoiceDAO {
                 psAdd.executeBatch();
             }
 
+            // 5. Ghi AuditLog
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(
+                    defaultEmployeeId,
+                    "UPDATE",
+                    "invoices",
+                    inv.getId(),
+                    gson.toJson(old),
+                    gson.toJson(inv)
+            );
+            new AuditLogDAO(cn).insertAuditLog(log);
+
             cn.commit();
             return true;
         } catch (Exception ex) {
@@ -176,13 +181,7 @@ public class InvoiceDAO {
         }
     }
 
-    /* ------------------------ XOÁ ---------------------------- */
-    /**
-     * Xóa hóa đơn và toàn bộ chi tiết sản phẩm theo ID.
-     *
-     * @param id mã hóa đơn
-     * @return true nếu thành công
-     */
+    /* ------------------------ XÓA ---------------------------- */
     public boolean deleteInvoice(int id) {
         String sqlItm = "DELETE FROM invoice_items WHERE invoice_id=?";
         String sqlInv = "DELETE FROM invoices WHERE id=?";
@@ -190,15 +189,32 @@ public class InvoiceDAO {
         try (Connection cn = DatabaseConnection.getConnection()) {
             cn.setAutoCommit(false);
 
+            // 1. Lấy dữ liệu cũ
+            Invoice old = findById(id);
+
+            // 2. Xóa chi tiết
             try (PreparedStatement psItm = cn.prepareStatement(sqlItm)) {
                 psItm.setInt(1, id);
                 psItm.executeUpdate();
             }
 
+            // 3. Xóa hóa đơn
             try (PreparedStatement psInv = cn.prepareStatement(sqlInv)) {
                 psInv.setInt(1, id);
                 psInv.executeUpdate();
             }
+
+            // 4. Ghi AuditLog
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(
+                    defaultEmployeeId,
+                    "DELETE",
+                    "invoices",
+                    id,
+                    gson.toJson(old),
+                    null
+            );
+            new AuditLogDAO(cn).insertAuditLog(log);
 
             cn.commit();
             return true;
@@ -208,15 +224,7 @@ public class InvoiceDAO {
         }
     }
 
-    /* ================ MAP RESULTSET → OBJECT ================= */
-    /**
-     * Chuyển ResultSet sang đối tượng Invoice.
-     *
-     * @param rs ResultSet đầu vào
-     * @param withTotal có nạp giá trị total hay không
-     * @return đối tượng Invoice
-     * @throws SQLException nếu có lỗi trong quá trình đọc dữ liệu
-     */
+    /* ================ MAPPING ======================= */
     private Invoice toInvoice(ResultSet rs, boolean withTotal) throws SQLException {
         return new Invoice(
                 rs.getInt("id"),
@@ -227,13 +235,6 @@ public class InvoiceDAO {
         );
     }
 
-    /**
-     * Chuyển ResultSet sang đối tượng InvoiceItem.
-     *
-     * @param rs ResultSet đầu vào
-     * @return đối tượng InvoiceItem
-     * @throws SQLException nếu có lỗi trong quá trình đọc dữ liệu
-     */
     private InvoiceItem toItem(ResultSet rs) throws SQLException {
         return new InvoiceItem(
                 rs.getInt("id"),

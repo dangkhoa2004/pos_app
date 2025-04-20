@@ -35,7 +35,7 @@ public class POSPanel extends JPanel {
     private JPanel buildTopBar() {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        topBar.setBackground(new Color(230, 240, 255));
+        topBar.setBackground(new Color(255, 255, 255));
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchPanel.setOpaque(false);

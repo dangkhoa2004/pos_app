@@ -1,26 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package pos_app.dao;
 
+import com.google.gson.Gson;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import pos_app.models.Employee;
+import pos_app.models.AuditLog;
 import pos_app.util.DatabaseConnection;
 
 /**
  * EmployeeDAO dùng để thao tác với bảng employees trong hệ thống POS.
  *
  * Cung cấp các chức năng: - Lấy danh sách nhân viên - Thêm, sửa, xóa nhân viên
- * - Kiểm tra đăng nhập
+ * (có ghi AuditLog) - Kiểm tra đăng nhập
  *
- * Sử dụng kết nối từ lớp DatabaseConnection.
+ * Sử dụng kết nối từ lớp DatabaseConnection. Mặc định AuditLog sử dụng
+ * employeeId = 1 (admin)
  *
  * @author 04dkh
  */
 public class EmployeeDAO {
+
+    private final int defaultEmployeeId = 1;
 
     /* ===================== READ ALL ===================== */
     /**
@@ -35,15 +36,7 @@ public class EmployeeDAO {
         try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                Employee e = new Employee(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("username"),
-                        rs.getString("password"),
-                        rs.getInt("role_id"),
-                        rs.getString("phone"),
-                        rs.getString("email")
-                );
+                Employee e = mapResultSet(rs);
                 list.add(e);
             }
         } catch (Exception ex) {
@@ -54,14 +47,14 @@ public class EmployeeDAO {
 
     /* ===================== CREATE ======================= */
     /**
-     * Thêm một nhân viên mới vào hệ thống.
+     * Thêm một nhân viên mới vào hệ thống và ghi nhật ký thao tác.
      *
      * @param e đối tượng Employee cần thêm
      */
     public void insertEmployee(Employee e) {
         String sql = "INSERT INTO employees (name, username, password, role_id, phone, email) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, e.getName());
             stmt.setString(2, e.getUsername());
@@ -70,6 +63,25 @@ public class EmployeeDAO {
             stmt.setString(5, e.getPhone());
             stmt.setString(6, e.getEmail());
             stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    e.setId(rs.getInt(1));
+                }
+            }
+
+            // Ghi nhật ký thao tác
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(
+                    defaultEmployeeId,
+                    "INSERT",
+                    "employees",
+                    e.getId(),
+                    null,
+                    gson.toJson(e)
+            );
+            new AuditLogDAO(conn).insertAuditLog(log);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -77,7 +89,7 @@ public class EmployeeDAO {
 
     /* ===================== UPDATE ======================= */
     /**
-     * Cập nhật thông tin nhân viên theo ID.
+     * Cập nhật thông tin nhân viên theo ID và ghi nhật ký thao tác.
      *
      * @param e đối tượng Employee cần cập nhật
      */
@@ -85,6 +97,9 @@ public class EmployeeDAO {
         String sql = "UPDATE employees SET name = ?, username = ?, password = ?, role_id = ?, phone = ?, email = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Lấy dữ liệu cũ
+            Employee old = getEmployeeById(e.getId());
 
             stmt.setString(1, e.getName());
             stmt.setString(2, e.getUsername());
@@ -94,6 +109,19 @@ public class EmployeeDAO {
             stmt.setString(6, e.getEmail());
             stmt.setInt(7, e.getId());
             stmt.executeUpdate();
+
+            // Ghi nhật ký thao tác
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(
+                    defaultEmployeeId,
+                    "UPDATE",
+                    "employees",
+                    e.getId(),
+                    gson.toJson(old),
+                    gson.toJson(e)
+            );
+            new AuditLogDAO(conn).insertAuditLog(log);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -101,7 +129,7 @@ public class EmployeeDAO {
 
     /* ===================== DELETE ======================= */
     /**
-     * Xóa nhân viên theo ID.
+     * Xóa nhân viên theo ID và ghi nhật ký thao tác.
      *
      * @param id mã nhân viên cần xóa
      */
@@ -110,8 +138,24 @@ public class EmployeeDAO {
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            // Lấy dữ liệu cũ
+            Employee old = getEmployeeById(id);
+
             stmt.setInt(1, id);
             stmt.executeUpdate();
+
+            // Ghi nhật ký thao tác
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(
+                    defaultEmployeeId,
+                    "DELETE",
+                    "employees",
+                    id,
+                    gson.toJson(old),
+                    null
+            );
+            new AuditLogDAO(conn).insertAuditLog(log);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -151,5 +195,47 @@ public class EmployeeDAO {
         }
 
         return null;
+    }
+
+    /* ===================== SUPPORT ====================== */
+    /**
+     * Tìm nhân viên theo ID.
+     *
+     * @param id mã nhân viên
+     * @return đối tượng Employee nếu có, null nếu không tìm thấy
+     */
+    public Employee getEmployeeById(int id) {
+        String sql = "SELECT * FROM employees WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return mapResultSet(rs);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Mapping ResultSet sang đối tượng Employee.
+     *
+     * @param rs ResultSet từ SQL
+     * @return đối tượng Employee
+     * @throws SQLException nếu lỗi xảy ra
+     */
+    private Employee mapResultSet(ResultSet rs) throws SQLException {
+        return new Employee(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("username"),
+                rs.getString("password"),
+                rs.getInt("role_id"),
+                rs.getString("phone"),
+                rs.getString("email")
+        );
     }
 }

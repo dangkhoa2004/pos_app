@@ -6,6 +6,9 @@ import java.util.List;
 import pos_app.models.InvoiceModel;
 import pos_app.models.Product;
 import pos_app.util.DatabaseConnection;
+import com.google.gson.Gson;
+import pos_app.models.AuditLog;
+import pos_app.dao.AuditLogDAO;
 
 /**
  * ProductDAO dùng để thao tác với bảng products và các nghiệp vụ liên quan đến
@@ -89,15 +92,31 @@ public class ProductDAO {
      * @param p đối tượng sản phẩm cần thêm
      */
     public void insertProduct(Product p) {
+        insertProduct(p, 1); // Mặc định Admin
+    }
+
+    public void insertProduct(Product p, int employeeId) {
         String sql = "INSERT INTO products (name, price, quantity, image_path) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, p.getName());
             stmt.setDouble(2, p.getPrice());
             stmt.setInt(3, p.getQuantity());
             stmt.setString(4, p.getImagePath());
             stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    p.setId(rs.getInt(1));
+                }
+            }
+
+            AuditLogDAO auditDAO = new AuditLogDAO(conn);
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(employeeId, "INSERT", "products", p.getId(), null, gson.toJson(p));
+            auditDAO.insertAuditLog(log);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -109,9 +128,15 @@ public class ProductDAO {
      * @param p đối tượng sản phẩm cần cập nhật
      */
     public void updateProduct(Product p) {
+        updateProduct(p, 1); // Mặc định Admin
+    }
+
+    public void updateProduct(Product p, int employeeId) {
         String sql = "UPDATE products SET name = ?, price = ?, quantity = ?, image_path = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            Product oldProduct = getProductById(p.getId());
 
             stmt.setString(1, p.getName());
             stmt.setDouble(2, p.getPrice());
@@ -119,6 +144,12 @@ public class ProductDAO {
             stmt.setString(4, p.getImagePath());
             stmt.setInt(5, p.getId());
             stmt.executeUpdate();
+
+            AuditLogDAO auditDAO = new AuditLogDAO(conn);
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(employeeId, "UPDATE", "products", p.getId(), gson.toJson(oldProduct), gson.toJson(p));
+            auditDAO.insertAuditLog(log);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,12 +161,24 @@ public class ProductDAO {
      * @param id mã sản phẩm cần xóa
      */
     public void deleteProduct(int id) {
+        deleteProduct(id, 1); // Mặc định Admin
+    }
+
+    public void deleteProduct(int id, int employeeId) {
         String sql = "DELETE FROM products WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            Product oldProduct = getProductById(id);
+
             stmt.setInt(1, id);
             stmt.executeUpdate();
+
+            AuditLogDAO auditDAO = new AuditLogDAO(conn);
+            Gson gson = new Gson();
+            AuditLog log = new AuditLog(employeeId, "DELETE", "products", id, gson.toJson(oldProduct), null);
+            auditDAO.insertAuditLog(log);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

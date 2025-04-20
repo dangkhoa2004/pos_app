@@ -135,8 +135,47 @@ CREATE TABLE settings (
     store_name VARCHAR(100),
     address TEXT,
     phone VARCHAR(20),
-    email VARCHAR(100)
+    email VARCHAR(100),
+    logo_path TEXT,
+    tax_rate DECIMAL(5,2),
+    currency VARCHAR(10),
+    invoice_prefix VARCHAR(20),
+    printer_name VARCHAR(100),
+    default_language VARCHAR(10),
+    backup_path TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Quản lý phiên đăng nhập người dùng
+CREATE TABLE user_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT,
+    session_token VARCHAR(255) UNIQUE,
+    login_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    logout_time DATETIME,
+    ip_address VARCHAR(45),
+    device_info TEXT,
+    FOREIGN KEY (employee_id) REFERENCES employees(id)
+);
+
+-- Ghi lịch sử thao tác (Audit Log)
+CREATE TABLE audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT,
+    action_type ENUM('INSERT', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'),
+    table_name VARCHAR(100),
+    record_id INT,
+    action_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    old_data TEXT,
+    new_data TEXT,
+    FOREIGN KEY (employee_id) REFERENCES employees(id)
+);
+
+-- Thêm cột version vào bảng sản phẩm để kiểm soát xung đột khi chỉnh sửa
+ALTER TABLE products ADD COLUMN version INT DEFAULT 1;
+ALTER TABLE customers ADD COLUMN version INT DEFAULT 1;
+ALTER TABLE invoices ADD COLUMN version INT DEFAULT 1;
 
 -- -------------------------
 -- Dữ liệu mẫu ban đầu
@@ -150,8 +189,8 @@ INSERT INTO employees(name, username, password, role_id, phone, email)
 VALUES ('Quản trị viên', 'admin', 'admin123', 1, '0869938981', '04dkhoa04@gmail.com');
 
 -- Cài đặt hệ thống
-INSERT INTO settings(id, store_name, address, phone, email) 
-VALUES (1, 'Cửa hàng ABC', '123 Đường A, TP.B', '0909000900', 'info@abcshop.vn');
+INSERT INTO settings (id, store_name, address, phone, email, logo_path, tax_rate, currency, invoice_prefix, printer_name, default_language, backup_path, created_at, updated_at)
+VALUES (1, 'POS - Quản lý bán hàng', 'Số Nhà 4B66, Ngõ 296 Ngô Gia Tự, Phường Cát Bi, Quận Hải An, Hải Phòng', '0869938981', 'info@abcshop.vn', 'logo.png', 10, 'VND', 'INV-', 'Printer_POS_1', 'VI', 'D:/POS/backup/', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Phân loại sản phẩm
 INSERT INTO categories(name, description)
