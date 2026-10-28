@@ -1,123 +1,121 @@
 package pos_app.view;
 
-import pos_app.ui.components.RoundedPanel;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.function.Consumer;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import pos_app.ui.Theme;
 import pos_app.ui.panel.*;
 import pos_app.util.IconUtil;
 import pos_app.util.Session;
 
-/**
- * Lớp SideBarMenu tạo thanh menu điều hướng bên trái cho giao diện chính của
- * ứng dụng POS. Giao diện này bao gồm logo, danh sách các chức năng như Bán
- * hàng, Quản lý sản phẩm, Khách hàng, Hóa đơn, Thống kê, Kho, Nhân viên, Cài
- * đặt, và nút Đăng xuất.
- */
+/** Persistent, compact navigation for the POS workspace. */
 public class SideBarMenu extends JPanel {
+    private JButton selectedButton;
 
-    private static final Color HOVER_COLOR = new Color(220, 235, 255);
-    private static final Color NORMAL_COLOR = Color.WHITE;
-
-    /**
-     * Khởi tạo menu bên trái của ứng dụng.
-     *
-     * @param onMenuClick Hàm callback sẽ được gọi khi người dùng chọn một mục
-     * menu; truyền vào JPanel tương ứng.
-     * @param onLogout Hàm callback sẽ được gọi khi người dùng nhấn "Đăng xuất".
-     */
     public SideBarMenu(Consumer<JPanel> onMenuClick, Runnable onLogout) {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(Color.WHITE);
-        setPreferredSize(new Dimension(230, 0));
-        setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        setLayout(new BorderLayout());
+        setBackground(Theme.NAV);
+        setPreferredSize(new Dimension(252, 0));
 
-        JLabel logo = new JLabel();
-        logo.setPreferredSize(new Dimension(180, 180));
-        logo.setMaximumSize(new Dimension(180, 180));
-        logo.setHorizontalAlignment(SwingConstants.CENTER);
-        logo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        logo.setIcon(IconUtil.loadPng("logo.png", 180));
-        add(logo);
-        add(Box.createRigidArea(new Dimension(0, 30)));
+        JPanel brand = new JPanel(new FlowLayout(FlowLayout.LEFT, 13, 0));
+        brand.setOpaque(false);
+        brand.setBorder(new EmptyBorder(24, 22, 24, 16));
+        JLabel logo = new JLabel(IconUtil.loadPng("logo.png", 38));
+        JLabel brandName = new JLabel("POS MANAGER");
+        brandName.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        brandName.setForeground(Color.WHITE);
+        brand.add(logo);
+        brand.add(brandName);
+        add(brand, BorderLayout.NORTH);
 
-        addMenu("Bán Hàng", IconUtil.loadSvg("shopping-cart.svg", 20), new POSPanel(), onMenuClick);
-        addMenu("Quản lý sản phẩm", IconUtil.loadSvg("ad_product.svg", 20), new ProductPanel(), onMenuClick);
-        addMenu("Khách hàng", IconUtil.loadSvg("customer_service_agent.svg", 20), new CustomerPanel(), onMenuClick);
-        addMenu("Hóa đơn", IconUtil.loadSvg("alternate_file.svg", 20), new InvoicePanel(), onMenuClick);
-        addMenu("Thống kê", IconUtil.loadSvg("pie_chart.svg", 20), null, onMenuClick);
-        addMenu("Nhập / Xuất kho", IconUtil.loadSvg("stock.svg", 20), new StockPanel(), onMenuClick);
-        addMenu("Nhân viên / Chức vụ", IconUtil.loadSvg("employee-group-line.svg", 20), new EmployeePanel(), onMenuClick);
-        addMenu("Bảng điều khiển", IconUtil.loadSvg("terminal.svg", 20), new TerminalPanel(), onMenuClick);
-        addMenu("Cài đặt hệ thống", IconUtil.loadSvg("cog.svg", 20), new SettingsPanel(), onMenuClick);
+        JPanel menu = new JPanel();
+        menu.setOpaque(false);
+        menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
+        menu.setBorder(new EmptyBorder(8, 14, 12, 14));
+        addMenu(menu, "Bán hàng", "shopping-cart.svg", POSPanel::new, onMenuClick);
+        addMenu(menu, "Sản phẩm", "ad_product.svg", ProductPanel::new, onMenuClick);
+        addMenu(menu, "Khách hàng", "customer_service_agent.svg", CustomerPanel::new, onMenuClick);
+        addMenu(menu, "Hóa đơn", "alternate_file.svg", InvoicePanel::new, onMenuClick);
+        addMenu(menu, "Thống kê", "pie_chart.svg", null, onMenuClick);
+        addMenu(menu, "Nhập / Xuất kho", "stock.svg", StockPanel::new, onMenuClick);
+        addMenu(menu, "Nhân viên", "employee-group-line.svg", EmployeePanel::new, onMenuClick);
+        addMenu(menu, "Nhật ký hệ thống", "terminal.svg", TerminalPanel::new, onMenuClick);
+        addMenu(menu, "Cài đặt", "cog.svg", SettingsPanel::new, onMenuClick);
+        JScrollPane scroll = new JScrollPane(menu);
+        scroll.setBorder(null);
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        add(scroll, BorderLayout.CENTER);
 
-        add(Box.createVerticalGlue());
-
-        JButton btnLogout = new JButton("Đăng xuất");
-        btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnLogout.setMaximumSize(new Dimension(180, 40));
-        btnLogout.setFocusPainted(false);
-        btnLogout.setBackground(new Color(255, 80, 80));
-        btnLogout.setForeground(Color.WHITE);
-        btnLogout.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btnLogout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnLogout.setFont(btnLogout.getFont().deriveFont(Font.BOLD));
-        btnLogout.addActionListener(e -> {
+        JButton logout = new JButton("Đăng xuất");
+        logout.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        logout.setForeground(new Color(254, 202, 202));
+        logout.setBackground(new Color(127, 29, 29));
+        logout.setFocusPainted(false);
+        logout.setBorder(new EmptyBorder(12, 16, 12, 16));
+        logout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setOpaque(false);
+        footer.setBorder(new EmptyBorder(14, 18, 20, 18));
+        footer.add(logout, BorderLayout.CENTER);
+        add(footer, BorderLayout.SOUTH);
+        logout.addActionListener(e -> {
             Session.logout();
             onLogout.run();
         });
-        add(Box.createRigidArea(new Dimension(0, 20)));
-        add(btnLogout);
     }
 
-    /**
-     * Thêm một mục menu vào thanh bên.
-     *
-     * @param title Tên mục hiển thị trong menu.
-     * @param icon Biểu tượng hiển thị (SVG hoặc PNG).
-     * @param target JPanel sẽ được hiển thị khi click (null nếu chưa phát
-     * triển).
-     * @param onClick Hàm callback sẽ được gọi khi click mục, truyền vào
-     * `target`.
-     */
-    private void addMenu(String title, Icon icon, JPanel target, Consumer<JPanel> onClick) {
-        RoundedPanel menuItem = new RoundedPanel(15);
-        menuItem.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        menuItem.setMaximumSize(new Dimension(180, 45));
-        menuItem.setBackground(NORMAL_COLOR);
-        menuItem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        menuItem.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel iconLabel = new JLabel(icon);
-        JLabel textLabel = new JLabel(title);
-        textLabel.setFont(textLabel.getFont().deriveFont(Font.PLAIN, 14));
-
-        menuItem.add(iconLabel);
-        menuItem.add(textLabel);
-
-        menuItem.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                menuItem.setBackground(HOVER_COLOR);
+    private void addMenu(JPanel menu, String title, String iconName,
+                         java.util.function.Supplier<JPanel> factory, Consumer<JPanel> onClick) {
+        Icon icon = IconUtil.loadSvg(iconName, 19);
+        if (icon instanceof FlatSVGIcon svg) {
+            svg.setColorFilter(new FlatSVGIcon.ColorFilter(color ->
+                    new Color(226, 232, 240, color.getAlpha())));
+        }
+        JButton item = new JButton(title, icon);
+        item.setHorizontalAlignment(SwingConstants.LEFT);
+        item.setIconTextGap(14);
+        item.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        item.setForeground(new Color(203, 213, 225));
+        item.setBackground(Theme.NAV);
+        item.setBorder(new EmptyBorder(12, 14, 12, 10));
+        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
+        item.setPreferredSize(new Dimension(220, 46));
+        item.setFocusPainted(false);
+        item.setContentAreaFilled(true);
+        item.setOpaque(true);
+        item.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        item.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) {
+                if (item != selectedButton) item.setBackground(new Color(31, 41, 55));
             }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                menuItem.setBackground(NORMAL_COLOR);
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (target == null) {
-                    JOptionPane.showMessageDialog(null, "Tính năng này hiện chưa được phát triển!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    onClick.accept(target);
-                }
+            @Override public void mouseExited(MouseEvent e) {
+                if (item != selectedButton) item.setBackground(Theme.NAV);
             }
         });
-
-        add(menuItem);
-        add(Box.createRigidArea(new Dimension(0, 10)));
+        item.addActionListener(e -> {
+            if (selectedButton != null) {
+                selectedButton.setBackground(Theme.NAV);
+                selectedButton.setForeground(new Color(203, 213, 225));
+            }
+            selectedButton = item;
+            item.setBackground(new Color(30, 64, 175));
+            item.setForeground(Color.WHITE);
+            if (factory == null) {
+                JOptionPane.showMessageDialog(this, "Tính năng thống kê đang được phát triển.",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            } else onClick.accept(factory.get());
+        });
+        if (selectedButton == null) {
+            selectedButton = item;
+            item.setBackground(new Color(30, 64, 175));
+            item.setForeground(Color.WHITE);
+        }
+        menu.add(item);
+        menu.add(Box.createVerticalStrut(5));
     }
 }

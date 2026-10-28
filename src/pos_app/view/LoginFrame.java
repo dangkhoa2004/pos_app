@@ -1,6 +1,5 @@
 package pos_app.view;
 
-import com.formdev.flatlaf.FlatIntelliJLaf;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,6 +7,7 @@ import pos_app.dao.EmployeeDAO;
 import pos_app.models.Employee;
 import pos_app.util.IconUtil;
 import pos_app.util.Session;
+import pos_app.ui.Theme;
 
 /**
  * Lớp LoginFrame cung cấp giao diện đăng nhập cho hệ thống POS. Người dùng nhập
@@ -24,34 +24,52 @@ public class LoginFrame extends JFrame {
      * Khởi tạo giao diện đăng nhập và các thành phần hiển thị.
      */
     public LoginFrame() {
-        try {
-            UIManager.setLookAndFeel(new FlatIntelliJLaf());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        setTitle("Đăng nhập hệ thống");
-        setSize(750, 420);
+        Theme.install();
+        setTitle("Đăng nhập • POS Manager");
+        setSize(900, 560);
+        setMinimumSize(new Dimension(760, 500));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JLabel logoLabel = new JLabel();
-        logoLabel.setIcon(IconUtil.loadPng("logo.png", 200));
-        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.add(logoLabel, BorderLayout.CENTER);
-        leftPanel.setBackground(Color.WHITE);
-        leftPanel.setPreferredSize(new Dimension(300, 0));
+        JPanel brandPanel = new JPanel();
+        brandPanel.setBackground(Theme.NAV);
+        brandPanel.setPreferredSize(new Dimension(350, 0));
+        brandPanel.setLayout(new BoxLayout(brandPanel, BoxLayout.Y_AXIS));
+        brandPanel.setBorder(BorderFactory.createEmptyBorder(70, 42, 50, 42));
+        JLabel logoLabel = new JLabel(IconUtil.loadPng("logo.png", 112));
+        logoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel brandTitle = new JLabel("Bán hàng gọn nhẹ.");
+        brandTitle.setFont(new Font("Segoe UI", Font.BOLD, 27));
+        brandTitle.setForeground(Color.WHITE);
+        brandTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel brandSubtitle = new JLabel("Quản lý cửa hàng hiệu quả mỗi ngày.");
+        brandSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        brandSubtitle.setForeground(new Color(203, 213, 225));
+        brandSubtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        brandPanel.add(logoLabel);
+        brandPanel.add(Box.createVerticalStrut(38));
+        brandPanel.add(brandTitle);
+        brandPanel.add(Box.createVerticalStrut(10));
+        brandPanel.add(brandSubtitle);
 
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-        rightPanel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(72, 64, 60, 64));
+        rightPanel.setBackground(Theme.CANVAS);
 
-        JLabel lblTitle = new JLabel("Đăng nhập hệ thống");
-        lblTitle.setFont(new Font("SansSerif", Font.BOLD, 22));
-        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel eyebrow = new JLabel("CHÀO MỪNG TRỞ LẠI");
+        eyebrow.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        eyebrow.setForeground(Theme.BRAND);
+        eyebrow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel lblTitle = new JLabel("Đăng nhập tài khoản");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblTitle.setForeground(Theme.TEXT);
+        lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel hint = new JLabel("Nhập thông tin để tiếp tục vào hệ thống.");
+        hint.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        hint.setForeground(Theme.MUTED);
+        hint.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         txtUsername = new JTextField();
         txtPassword = new JPasswordField();
@@ -59,45 +77,40 @@ public class LoginFrame extends JFrame {
         JPanel usernamePanel = createInputField("Tên đăng nhập", txtUsername);
         JPanel passwordPanel = createInputField("Mật khẩu", txtPassword);
 
-        usernamePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-        passwordPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-        usernamePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        passwordPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        usernamePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 68));
+        passwordPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 68));
+        usernamePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        passwordPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         btnLogin = new JButton("Đăng nhập");
-        btnLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnLogin.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        btnLogin.setBackground(new Color(33, 150, 243));
+        btnLogin.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btnLogin.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
+        btnLogin.setPreferredSize(new Dimension(300, 46));
+        btnLogin.setBackground(Theme.BRAND);
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setFocusPainted(false);
         btnLogin.setFont(btnLogin.getFont().deriveFont(Font.BOLD, 14f));
         btnLogin.addActionListener(this::handleLogin);
 
-        JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton forgotBtn = new JButton("Quên mật khẩu?");
-        JButton registerBtn = new JButton("Đăng ký");
-        forgotBtn.setFocusPainted(false);
-        registerBtn.setFocusPainted(false);
-        forgotBtn.setContentAreaFilled(false);
-        registerBtn.setContentAreaFilled(false);
-        forgotBtn.setForeground(Color.BLUE);
-        registerBtn.setForeground(Color.BLUE);
-        optionsPanel.add(forgotBtn);
-        optionsPanel.add(new JLabel("|"));
-        optionsPanel.add(registerBtn);
-        optionsPanel.setOpaque(false);
-
+        txtUsername.setPreferredSize(new Dimension(300, 42));
+        txtPassword.setPreferredSize(new Dimension(300, 42));
+        txtUsername.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Theme.BORDER), BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        txtPassword.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Theme.BORDER), BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        rightPanel.add(eyebrow);
+        rightPanel.add(Box.createVerticalStrut(10));
         rightPanel.add(lblTitle);
-        rightPanel.add(Box.createVerticalStrut(25));
+        rightPanel.add(Box.createVerticalStrut(7));
+        rightPanel.add(hint);
+        rightPanel.add(Box.createVerticalStrut(32));
         rightPanel.add(usernamePanel);
-        rightPanel.add(Box.createVerticalStrut(15));
+        rightPanel.add(Box.createVerticalStrut(18));
         rightPanel.add(passwordPanel);
-        rightPanel.add(Box.createVerticalStrut(25));
+        rightPanel.add(Box.createVerticalStrut(26));
         rightPanel.add(btnLogin);
-        rightPanel.add(Box.createVerticalStrut(20));
-        rightPanel.add(optionsPanel);
-
-        add(leftPanel, BorderLayout.WEST);
+        getRootPane().setDefaultButton(btnLogin);
+        add(brandPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.CENTER);
     }
 

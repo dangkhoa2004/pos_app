@@ -1,123 +1,88 @@
 package pos_app.view;
 
-import com.formdev.flatlaf.FlatIntelliJLaf;
 import java.awt.*;
-import java.util.Enumeration;
 import javax.swing.*;
-import pos_app.util.SQLSeeder;
-import pos_app.util.Session;
+import pos_app.ui.Theme;
+import pos_app.ui.panel.POSPanel;
 import pos_app.util.IconUtil;
 
-/**
- * Lớp MainFrame là cửa sổ chính của ứng dụng POS. Giao diện bao gồm sidebar
- * menu bên trái và vùng nội dung trung tâm động, thay đổi theo lựa chọn của
- * người dùng.
- */
+/** Main application shell: persistent navigation, page heading, and workspace. */
 public class MainFrame extends JFrame {
+    private final JPanel workspace = new JPanel(new BorderLayout());
+    private final JLabel pageTitle = new JLabel("Bán hàng");
+    private final JLabel pageSubtitle = new JLabel("Tạo đơn hàng và xử lý thanh toán");
 
-    /**
-     * Panel hiển thị nội dung trung tâm của ứng dụng.
-     */
-    private JPanel mainContent;
-
-    /**
-     * Khởi tạo giao diện chính của ứng dụng POS. Thiết lập title, icon, layout,
-     * sidebar menu và vùng nội dung chính.
-     */
     public MainFrame() {
-        setTitle("POS - Quản lý bán hàng");
-        setBounds(100, 100, 1200, 800);
-        setLocationRelativeTo(null);
+        setTitle("POS • Quản lý bán hàng");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setMinimumSize(new Dimension(1080, 700));
+        setSize(1440, 900);
+        setLocationRelativeTo(null);
+        setIconImage(IconUtil.loadPng("logo.png", 64).getImage());
+        getContentPane().setBackground(Theme.CANVAS);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(Color.WHITE);
 
-        // Đặt icon cửa sổ bằng tiện ích IconUtil
-        ImageIcon icon = IconUtil.loadPng("logo.png", 180);
-        setIconImage(icon.getImage());
-
-        // Sidebar điều hướng
         SideBarMenu sideBar = new SideBarMenu(this::showContentPanel, () -> {
             dispose();
-            LoginFrame loginFrame = new LoginFrame();
-            loginFrame.setExtendedState(JFrame.NORMAL);
-            loginFrame.setLocationRelativeTo(null);
-            loginFrame.setVisible(true);
+            LoginFrame login = new LoginFrame();
+            login.setLocationRelativeTo(null);
+            login.setVisible(true);
         });
         add(sideBar, BorderLayout.WEST);
 
-        // Vùng hiển thị nội dung chính
-        mainContent = new JPanel(new BorderLayout());
-        mainContent.setBackground(Color.WHITE);
+        JPanel page = new JPanel(new BorderLayout(0, 16));
+        page.setBackground(Theme.CANVAS);
+        page.setBorder(BorderFactory.createEmptyBorder(26, 30, 24, 30));
+        pageTitle.setFont(Theme.TITLE);
+        pageTitle.setForeground(Theme.TEXT);
+        pageSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        pageSubtitle.setForeground(Theme.MUTED);
+        JPanel heading = new JPanel();
+        heading.setOpaque(false);
+        heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
+        heading.add(pageTitle);
+        heading.add(Box.createVerticalStrut(4));
+        heading.add(pageSubtitle);
+        page.add(heading, BorderLayout.NORTH);
+        workspace.setOpaque(false);
+        page.add(workspace, BorderLayout.CENTER);
+        add(page, BorderLayout.CENTER);
 
-        JLabel welcomeLabel = new JLabel("Chào mừng đến hệ thống POS", SwingConstants.CENTER);
-        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        welcomeLabel.setForeground(new Color(60, 60, 60));
-        mainContent.add(welcomeLabel, BorderLayout.CENTER);
-
-        add(mainContent, BorderLayout.CENTER);
+        showContentPanel(new POSPanel());
     }
 
-    /**
-     * Thay đổi nội dung hiển thị ở vùng trung tâm.
-     *
-     * @param panel JPanel cần hiển thị thay thế nội dung cũ
-     */
     public void showContentPanel(JPanel panel) {
-        mainContent.removeAll();
-        mainContent.add(panel, BorderLayout.CENTER);
-        mainContent.revalidate();
-        mainContent.repaint();
-    }
-
-    /**
-     * Hàm main – Điểm khởi chạy chính của ứng dụng POS. Thiết lập giao diện,
-     * font chữ mặc định, chạy script khởi tạo dữ liệu, kiểm tra đăng nhập và
-     * hiển thị giao diện tương ứng.
-     *
-     * @param args đối số dòng lệnh (không sử dụng)
-     */
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(new FlatIntelliJLaf()); // Giao diện FlatLaf
-            setUIFont(new Font("Segoe UI", Font.PLAIN, 14)); // Đặt font mặc định
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        SQLSeeder.run("src/pos_app/sql/pos_app.sql");
-
-        SwingUtilities.invokeLater(() -> {
-            Session.autoLoginFromFile();
-
-            if (!Session.isLoggedIn()) {
-                JOptionPane.showMessageDialog(null, "Bạn cần đăng nhập trước khi sử dụng hệ thống.");
-                LoginFrame loginFrame = new LoginFrame();
-                loginFrame.setExtendedState(JFrame.NORMAL);
-                loginFrame.setLocationRelativeTo(null);
-                loginFrame.setVisible(true);
-            } else {
-                MainFrame mainFrame = new MainFrame();
-                mainFrame.setExtendedState(JFrame.NORMAL);
-                mainFrame.setLocationRelativeTo(null);
-                mainFrame.setVisible(true);
-            }
+        workspace.removeAll();
+        Theme.polish(panel);
+        workspace.add(panel, BorderLayout.CENTER);
+        String name = panel.getClass().getSimpleName();
+        pageTitle.setText(switch (name) {
+            case "POSPanel" -> "Bán hàng";
+            case "ProductPanel" -> "Sản phẩm";
+            case "CustomerPanel" -> "Khách hàng";
+            case "InvoicePanel" -> "Hóa đơn";
+            case "StockPanel" -> "Nhập / Xuất kho";
+            case "EmployeePanel" -> "Nhân viên";
+            case "TerminalPanel" -> "Nhật ký hệ thống";
+            case "SettingsPanel" -> "Cài đặt hệ thống";
+            default -> "Thống kê";
         });
+        pageSubtitle.setText(switch (name) {
+            case "POSPanel" -> "Tạo đơn hàng và xử lý thanh toán";
+            case "ProductPanel" -> "Quản lý danh mục và thông tin sản phẩm";
+            case "CustomerPanel" -> "Theo dõi hồ sơ và lịch sử khách hàng";
+            case "InvoicePanel" -> "Tra cứu và quản lý giao dịch bán hàng";
+            case "StockPanel" -> "Theo dõi hoạt động nhập và xuất hàng";
+            case "EmployeePanel" -> "Quản lý tài khoản và nhân sự cửa hàng";
+            case "TerminalPanel" -> "Theo dõi hoạt động của hệ thống";
+            case "SettingsPanel" -> "Thông tin và cấu hình cửa hàng";
+            default -> "Tổng quan hoạt động kinh doanh";
+        });
+        workspace.revalidate();
+        workspace.repaint();
     }
 
-    /**
-     * Thiết lập font mặc định cho toàn bộ giao diện UI Swing. Giúp đảm bảo mọi
-     * thành phần đều sử dụng cùng một kiểu font.
-     *
-     * @param font đối tượng Font cần đặt làm mặc định
-     */
-    public static void setUIFont(Font font) {
-        for (Enumeration<Object> keys = UIManager.getDefaults().keys(); keys.hasMoreElements();) {
-            Object key = keys.nextElement();
-            Object value = UIManager.get(key);
-            if (value instanceof javax.swing.plaf.FontUIResource) {
-                UIManager.put(key, new javax.swing.plaf.FontUIResource(font));
-            }
-        }
+    public static void main(String[] args) {
+        pos_app.App.main(args);
     }
 }
